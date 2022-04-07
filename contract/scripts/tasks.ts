@@ -14,7 +14,7 @@ task("accounts", "Prints the list of accounts", async (taskArgs, hre) => {
     console.log(account.address);
   }
 });
-
+/*
 task("ownerMint", "Mints from the NFT contract. (only Owner)")
   .addParam("number", "Ownermint Number")
   .setAction(async function (taskArguments, hre) {
@@ -22,7 +22,7 @@ task("ownerMint", "Mints from the NFT contract. (only Owner)")
     const transactionResponse = await contract["_ownerMint"](taskArguments.number);
     console.log(`Transaction Hash: ${transactionResponse.hash}`);
   });
-
+*/
 task("isPaused", "Check pause status")
   .setAction(async function (taskArguments, hre) {
     const contract = await getContract(getEnvVariable("CONTRACT_NAME"), hre, getProvider());

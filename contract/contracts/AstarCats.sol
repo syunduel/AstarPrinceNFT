@@ -1437,7 +1437,7 @@ contract AstarCats is ERC721Enumerable, Ownable {
             );
             require(
                 balanceOf(msg.sender) + _mintAmount <= maxMintAmount,
-                "Your Degen tribe can't be over 5 strong"
+                "maxMintAmount over"
             );
         }
 
