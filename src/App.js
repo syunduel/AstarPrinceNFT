@@ -5,13 +5,6 @@ import { fetchData } from "./redux/data/dataActions";
 import * as s from "./styles/globalStyles";
 import styled from "styled-components";
 import MintPage from './MintPage';
-import {
-  BrowserRouter as Router,
-  Routes,
-  Route,
-  Navigate,
-  useRoutes,
-} from "react-router-dom";
 
 const truncate = (input, len) =>
   input.length > len ? `${input.substring(0, len)}...` : input;
@@ -161,16 +154,6 @@ function App() {
   };
 
 
-  const RouteApp = () => {
-    let routes = useRoutes([
-      { path: "/", element: <Navigate to="/top/index.html" replace /> },
-      { path: "mint", element: <MintPage /> },
-      // ...
-    ]);
-    return routes;
-  };
-
-
   const decrementMintAmount = () => {
     let newMintAmount = mintAmount - 1;
     if (newMintAmount < 1) {
@@ -213,9 +196,7 @@ function App() {
   }, [blockchain.account]);
 
   return (
-    <Router>
-      <RouteApp />
-    </Router>
+    <MintPage />
   )
 }
 
