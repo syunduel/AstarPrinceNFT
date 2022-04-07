@@ -1,11 +1,7 @@
 import { task } from "hardhat/config";
 import { ethers } from "ethers";
-import { getContract, getEnvVariable } from "./helpers";
+import { getContract, getEnvVariable, getProvider } from "./helpers";
 
-function getProvider() {
-  const provider = new ethers.providers.JsonRpcProvider(getEnvVariable("TASK_RPC"));
-  return provider;
-}
 
 task("accounts", "Prints the list of accounts", async (taskArgs, hre) => {
   const accounts = await hre.ethers.getSigners();
@@ -25,21 +21,31 @@ task("ownerMint", "Mints from the NFT contract. (only Owner)")
 */
 task("isPaused", "Check pause status")
   .setAction(async function (taskArguments, hre) {
-    const contract = await getContract(getEnvVariable("CONTRACT_NAME"), hre, getProvider());
+
+    const contract = await getContract(getEnvVariable("CONTRACT_NAME"), hre, getProvider(hre));
     const transactionResponse = await contract["is_paused"]();
     console.log(`isPaused: ${transactionResponse}`);
   });
 
 task("pause", "Pause Sale")
   .setAction(async function (taskArguments, hre) {
-    const contract = await getContract(getEnvVariable("CONTRACT_NAME"), hre, getProvider());
+    const contract = await getContract(getEnvVariable("CONTRACT_NAME"), hre, getProvider(hre));
     const transactionResponse = await contract["pause"](true);
     console.log(`Sale Pause status changed. hash: ${transactionResponse.hash}`);
   });
 
 task("unpause", "Un Pause Sale")
   .setAction(async function (taskArguments, hre) {
-    const contract = await getContract(getEnvVariable("CONTRACT_NAME"), hre, getProvider());
+    const contract = await getContract(getEnvVariable("CONTRACT_NAME"), hre, getProvider(hre));
+    console.log(`call contract.address ${contract.address}.`);
     const transactionResponse = await contract["pause"](false);
     console.log(`Sale Pause status changed. hash: ${transactionResponse.hash}`);
+  });
+
+task("totalSupply", "Show Total Supply")
+  .setAction(async function (taskArguments, hre) {
+    const contract = await getContract(getEnvVariable("CONTRACT_NAME"), hre, getProvider(hre));
+    console.log(`call contract.address ${contract.address}.`);
+    const transactionResponse = await contract["totalSupply"]();
+    console.log(`totalSupply: ${transactionResponse}`);
   });

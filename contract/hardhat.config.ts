@@ -1,4 +1,4 @@
-require('dotenv').config();
+import 'dotenv/config';
 import "@nomiclabs/hardhat-waffle";
 import type { HardhatUserConfig } from "hardhat/config";
 require('./scripts/tasks');
