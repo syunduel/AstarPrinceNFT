@@ -15,3 +15,4 @@ command = "yarn build"
 [[redirects]]
 from = "/"
 to = "/top/"
+force = true
