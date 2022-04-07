@@ -9,9 +9,6 @@ const config: HardhatUserConfig = {
 
   defaultNetwork: "localhost",
   solidity: "0.8.0",
-  paths: {
-    artifacts: './src/artifacts',
-  },
   networks: {
     localhost: {
       url: "http://localhost:8545",
