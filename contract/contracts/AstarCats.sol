@@ -1402,9 +1402,9 @@ contract AstarCats is ERC721Enumerable, Ownable {
 
     string baseURI = "";
     string public baseExtension = ".json";
-    uint256 public cost = 3 ether;
-    uint256 public maxSupply = 10000;
-    uint256 public maxMintAmount = 5;
+    uint256 public cost = 0.1 ether;
+    uint256 public maxSupply = 7777;
+    uint256 public maxMintAmount = 10;
     bool public paused = true;
     bool public revealed = false;
     string public notRevealedUri;
