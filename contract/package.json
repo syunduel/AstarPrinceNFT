@@ -8,7 +8,7 @@
     "dev": "hardhat node",
     "lint:eslint": "eslint . --ext ts,tsx",
     "fix:eslint": "eslint . --ext ts,tsx --fix",
-    "deploy": "hardhat run scripts/deploy.ts --network localhost"
+    "deploy": "hardhat run scripts/deploy.ts"
   },
   "keywords": [],
   "author": "",

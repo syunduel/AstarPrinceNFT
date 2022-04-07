@@ -1,7 +1,7 @@
 {
-  "name": "astar-degens",
+  "name": "astar-cats",
   "version": "1.0.0",
-  "description": "Astar Degens NFT minting app",
+  "description": "Astar Cats NFT minting app",
   "private": true,
   "dependencies": {
     "@agney/react-loading": "^0.1.2",

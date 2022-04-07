@@ -5,10 +5,6 @@ require('./scripts/tasks');
 import { getEnvVariable } from "./scripts/helpers";
 
 
-// You need to export an object to set up your config
-// Go to https://hardhat.org/config/ to learn more
-
-
 const config: HardhatUserConfig = {
 
   defaultNetwork: "localhost",
@@ -17,12 +13,15 @@ const config: HardhatUserConfig = {
     artifacts: './src/artifacts',
   },
   networks: {
-    hardhat: {
-      chainId: 31337
+    localhost: {
+      url: "http://localhost:8545",
+      chainId: 31337,
+      accounts: { mnemonic: "test test test test test test test test test test test junk" }
     },
     shibuya: {
-      url: 'https://rpc.shibuya.astar.network:8545',
+      url: "https://rpc.shibuya.astar.network:8545",
       chainId: 81,
+      accounts: [getEnvVariable("ACCOUNT_PRIVATE_KEY")],
     }
   }
 };
