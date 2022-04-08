@@ -8,7 +8,7 @@ import { getEnvVariable } from "./scripts/helpers";
 const config: HardhatUserConfig = {
 
   defaultNetwork: "localhost",
-  solidity: "0.8.0",
+  solidity: "0.8.9",
   networks: {
     localhost: {
       url: "http://localhost:8545",
