@@ -1,21 +1,31 @@
+import { ethers, waffle } from "hardhat";
+import { Signer } from "ethers";
 const { expect, assert } = require("chai");
 const BigNumber = require('ethers').BigNumber;
 const provider = waffle.provider;
 
+const test_config = {
+  price: 1,
+  contract_name: "AstarCats",
+  max_supply: 7777,
+  max_mint: 10,
+  symbol: "CAT"
+
+};
 
 describe("AstarCats contract", function () {
-  let owner;
-  let bob;
+  let owner: any;
+  let bob: any;
   let charlie;
   let addrs;
-  let ad;
+  let ad: any;
 
   const not_revealed_uri = "not_revealed_uri";
 
   beforeEach(async function () {
     [owner, bob, charlie, ...addrs] = await ethers.getSigners();
-    const AstarDegens = await ethers.getContractFactory("AstarCats");
-    ad = await AstarDegens.deploy("AstarDegens", "AD", not_revealed_uri);
+    const AstarCats = await ethers.getContractFactory(test_config.contract_name);
+    ad = await AstarCats.deploy(test_config.contract_name, test_config.symbol, not_revealed_uri);
     await ad.deployed();
 
     // Ensure contract is paused/disabled on deployment
@@ -31,11 +41,11 @@ describe("AstarCats contract", function () {
     });
 
     it('check the maxSupply', async function () {
-      expect(await ad.maxSupply()).to.equal(10000);
+      expect(await ad.maxSupply()).to.equal(test_config.max_supply);
     });
 
     it("Confirm Cat price", async function () {
-      cost = ethers.utils.parseUnits('3', 0)
+      const cost = ethers.utils.parseUnits(test_config.price.toString(), 0)
       const expectedCost = cost.mul(ethers.constants.WeiPerEther);
       expect(await ad.cost()).to.equal(expectedCost);
     });
@@ -94,22 +104,22 @@ describe("AstarCats contract", function () {
       expect(await provider.getBalance(ad.address)).to.equal(degenCost.mul(3));
     });
 
-    it("Bob mints 5", async () => {
+    it("Bob mints " + test_config.max_mint, async () => {
       const degenCost = await ad.cost();
       const tokenId = await ad.totalSupply();
 
       expect(
-        await ad.connect(bob).mint(5, {
-          value: degenCost.mul(5),
+        await ad.connect(bob).mint(test_config.max_mint, {
+          value: degenCost.mul(test_config.max_mint),
         })
       )
         .to.emit(ad, "Transfer")
-        .withArgs(ethers.constants.AddressZero, bob.address, tokenId.add('5'));
-      expect(await ad.totalSupply()).to.equal(5);
+        .withArgs(ethers.constants.AddressZero, bob.address, tokenId.add(test_config.max_mint.toString()));
+      expect(await ad.totalSupply()).to.equal(test_config.max_mint);
 
     });
 
-    it("Bob mints 1 plus 4", async () => {
+    it("Bob mints 1 plus " + (test_config.max_mint - 1), async () => {
       const degenCost = await ad.cost();
       const tokenId = await ad.totalSupply();
 
@@ -123,45 +133,45 @@ describe("AstarCats contract", function () {
       expect(await ad.totalSupply()).to.equal(1);
 
       expect(
-        await ad.connect(bob).mint(4, {
-          value: degenCost.mul(4),
+        await ad.connect(bob).mint(test_config.max_mint - 1, {
+          value: degenCost.mul(test_config.max_mint - 1),
         })
       )
         .to.emit(ad, "Transfer")
-        .withArgs(ethers.constants.AddressZero, bob.address, tokenId.add('4'));
-      expect(await ad.totalSupply()).to.equal(5);
+        .withArgs(ethers.constants.AddressZero, bob.address, tokenId.add((test_config.max_mint - 1).toString()));
+      expect(await ad.totalSupply()).to.equal(test_config.max_mint);
 
     });
 
-    it("Bob fails to mints 6", async () => {
+    it("Bob fails to mints " + (test_config.max_mint + 1), async () => {
       const degenCost = await ad.cost();
       const tokenId = await ad.totalSupply();
 
-      await expect(ad.connect(bob).mint(6, { value: degenCost.mul(6), }))
+      await expect(ad.connect(bob).mint((test_config.max_mint + 1), { value: degenCost.mul((test_config.max_mint + 1)), }))
         .to.revertedWith("maxMintAmount over");
     });
 
-    it("Bob fails to mints 5 plus 1", async () => {
+    it(`Bob fails to mints ${test_config.max_mint} plus 1`, async () => {
       const degenCost = await ad.cost();
       const tokenId = await ad.totalSupply();
 
       expect(
-        await ad.connect(bob).mint(5, {
-          value: degenCost.mul(5),
+        await ad.connect(bob).mint(test_config.max_mint, {
+          value: degenCost.mul(test_config.max_mint),
         })
       )
         .to.emit(ad, "Transfer")
-        .withArgs(ethers.constants.AddressZero, bob.address, tokenId.add('5'));
-      expect(await ad.totalSupply()).to.equal(5);
+        .withArgs(ethers.constants.AddressZero, bob.address, tokenId.add(test_config.max_mint.toString()));
+      expect(await ad.totalSupply()).to.equal(test_config.max_mint);
 
       // should fail to mint additional one in new mint call
       await expect(ad.connect(bob).mint(1, { value: degenCost }))
         .to.be.revertedWith("maxMintAmount over");
 
-      expect(await ad.totalSupply()).to.equal(5);
+      expect(await ad.totalSupply()).to.equal(test_config.max_mint);
     });
 
-    it("Bob fails to mints 1 plus 5", async () => {
+    it(`Bob fails to mints 1 plus ${test_config.max_mint}`, async () => {
       const degenCost = await ad.cost();
       const tokenId = await ad.totalSupply();
 
@@ -175,7 +185,7 @@ describe("AstarCats contract", function () {
       expect(await ad.totalSupply()).to.equal(1);
 
       // should fail to mint additional five in new mint call
-      await expect(ad.connect(bob).mint(5, { value: degenCost.mul(5) }))
+      await expect(ad.connect(bob).mint(test_config.max_mint, { value: degenCost.mul(test_config.max_mint) }))
         .to.revertedWith("maxMintAmount over");
 
       expect(await ad.totalSupply()).to.equal(1);

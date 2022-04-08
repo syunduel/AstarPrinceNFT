@@ -10,12 +10,14 @@ contract AstarCats is ERC721Enumerable, Ownable {
 
     string baseURI = "";
     string public baseExtension = ".json";
-    uint256 public cost = 20 ether;
+    uint256 public cost = 1 ether;
     uint256 public maxSupply = 7777;
     uint256 public maxMintAmount = 10;
     bool public paused = true;
     bool public revealed = false;
     string public notRevealedUri;
+    uint256 private _whiteListCount = 0;
+    mapping(address => uint256) private _whiteLists;
 
     constructor(
         string memory _name,
@@ -133,5 +135,27 @@ contract AstarCats is ERC721Enumerable, Ownable {
 
     function is_paused() public view returns (bool) {
         return paused;
+    }
+
+    function deleteWL(address addr) public virtual onlyOwner {
+        _whiteListCount = _whiteListCount - _whiteLists[addr];
+        delete (_whiteLists[addr]);
+    }
+
+    function upsertWL(address addr, uint256 maxMint) public virtual onlyOwner {
+        _whiteListCount = _whiteListCount - _whiteLists[addr];
+        _whiteLists[addr] = maxMint;
+        _whiteListCount = _whiteListCount + maxMint;
+    }
+
+    function pushMultiWL(address[] memory list) public virtual onlyOwner {
+        for (uint256 i = 0; i < list.length; i++) {
+            _whiteLists[list[i]]++;
+            _whiteListCount++;
+        }
+    }
+
+    function whiteListCount() public view returns (uint256) {
+        return _whiteListCount;
     }
 }
