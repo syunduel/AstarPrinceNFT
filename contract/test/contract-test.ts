@@ -1,5 +1,6 @@
 import { ethers, waffle } from "hardhat";
 import { Signer } from "ethers";
+import type { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 const { expect, assert } = require("chai");
 const BigNumber = require('ethers').BigNumber;
 const provider = waffle.provider;
@@ -10,20 +11,20 @@ const test_config = {
   max_supply: 7777,
   max_mint: 10,
   symbol: "CAT"
-
 };
 
 describe("AstarCats contract", function () {
-  let owner: any;
-  let bob: any;
-  let charlie;
-  let addrs;
+  let owner: SignerWithAddress;
+  let bob: SignerWithAddress;
+  let alis: SignerWithAddress;
   let ad: any;
+  let addrs;
 
   const not_revealed_uri = "not_revealed_uri";
 
   beforeEach(async function () {
-    [owner, bob, charlie, ...addrs] = await ethers.getSigners();
+    // @ts-ignore
+    [owner, bob, alis, ...addrs] = await ethers.getSigners();
     const AstarCats = await ethers.getContractFactory(test_config.contract_name);
     ad = await AstarCats.deploy(test_config.contract_name, test_config.symbol, not_revealed_uri);
     await ad.deployed();
@@ -44,6 +45,10 @@ describe("AstarCats contract", function () {
       expect(await ad.maxSupply()).to.equal(test_config.max_supply);
     });
 
+    it('check default is PreSale', async function () {
+      expect(await ad.is_presale()).to.equal(true);
+    });
+
     it("Confirm Cat price", async function () {
       const cost = ethers.utils.parseUnits(test_config.price.toString(), 0)
       const expectedCost = cost.mul(ethers.constants.WeiPerEther);
@@ -52,17 +57,24 @@ describe("AstarCats contract", function () {
 
   });
 
-  describe("Minting checks", function () {
+  describe("OwnerFunction checks", function () {
+    it("Owner can ownermint", async () => {
+      await expect(ad.connect(owner).ownerMint(1)).to.be.ok;
+    });
+
+    it("Non-owner cant ownermint", async () => {
+      await expect(ad.connect(bob).ownerMint(1)).to.reverted;
+    });
+  });
+
+  describe("Public Minting checks", function () {
+    beforeEach(async function () {
+      await ad.presale(false);
+    });
 
     it("Non-owner cannot mint without enough balance", async () => {
       const degenCost = await ad.cost();
       await expect(ad.connect(bob).mint(1, { value: degenCost.sub(1) })).to.be.reverted;
-    });
-
-    it("Owner cant mint without enough balance or for free", async () => {
-      const degenCost = await ad.cost();
-      expect(await ad.mint(1, { value: degenCost.sub(1) })).to.be.ok;
-      expect(await ad.mint(1, { value: 0 })).to.be.ok;
     });
 
     it("Owner and Bob mint", async () => {
@@ -203,6 +215,9 @@ describe("AstarCats contract", function () {
   });
 
   describe("URI checks", function () {
+    beforeEach(async function () {
+      await ad.presale(false);
+    });
 
     it("Token URI not available for non-minted token", async function () {
       await expect(ad.tokenURI(1)).to.be.reverted;
@@ -229,42 +244,73 @@ describe("AstarCats contract", function () {
       const index = 3;
       expect(await ad.tokenURI(3)).to.equal(baseUri + index.toString() + baseExtension);
     });
-
-
   });
 
-  describe("Wallet checks", function () {
+  describe("Whitelist checks", function () {
+    it("Non Whitelisted user cant buy on PreSale", async function () {
+      const degenCost = await ad.cost();
+      await expect(ad.connect(bob).mint(1, { value: degenCost }))
+        .to.be.revertedWith("Can not whitelist");
+      await expect(ad.connect(owner).mint(1, { value: degenCost }))
+        .to.be.revertedWith("Can not whitelist");
+    });
 
-    it("Wallets for owner and Bob are as expected", async () => {
-      expect(await ad.walletOfOwner(owner.address)).to.be.empty;
+    it("Whitelisted user can buy on PreSale", async function () {
+      const degenCost = await ad.cost();
+      let tokenId = await ad.totalSupply();
 
+      expect(await ad.pushMultiWL([bob.address])).to.be.ok;
+      expect(await ad.getWhiteListCount()).to.equal(1);
+      await assertMintSuccess(ad, degenCost, bob, 1);
+
+      await expect(ad.connect(bob).mint(1, { value: degenCost })).to.be.revertedWith("Can not whitelist");
+    });
+
+    it("Whitelisted user can buy 5", async function () {
+      const degenCost = (await ad.cost()).mul(5);
+      let tokenId = await ad.totalSupply();
+      expect(await ad.pushMultiWL([bob.address, bob.address, bob.address, bob.address, bob.address])).to.be.ok;
+      await assertMintSuccess(ad, degenCost, bob, 5);
+
+      await expect(ad.connect(bob).mint(1, { value: degenCost })).to.be.revertedWith("Can not whitelist");
+    });
+
+    it("Whitelisted user can buy 3 + 2", async function () {
+      let degenCost = (await ad.cost()).mul(3);
+      expect(await ad.pushMultiWL([bob.address, bob.address, bob.address, bob.address, bob.address])).to.be.ok;
+      await assertMintSuccess(ad, degenCost, bob, 3);
+      await assertMintSuccess(ad, degenCost, bob, 2, 3);
+
+      await expect(ad.connect(bob).mint(1, { value: degenCost })).to.be.revertedWith("Can not whitelist");
+    });
+
+    it("Non WhiteList user block after Whitelisted user buy", async function () {
       const degenCost = await ad.cost();
 
-      const ownerFirstCount = 2;
-      const bobFirstCount = 1;
-      const ownerSecondCount = 3;
+      expect(await ad.pushMultiWL([bob.address, bob.address])).to.be.ok;
+      expect(await ad.getWhiteListCount()).to.equal(2);
+      await assertMintSuccess(ad, degenCost, bob, 1);
 
-      expect(await ad.mint(ownerFirstCount, { value: degenCost })).to.be.ok;
-      const ownerFirstWallet = await ad.walletOfOwner(owner.address);
-      expect(ownerFirstWallet).to.have.lengthOf(ownerFirstCount);
-      expect(ownerFirstWallet[0]).to.equal(1);
-      expect(ownerFirstWallet[1]).to.equal(2);
+      await expect(ad.connect(alis).mint(1, { value: degenCost })).to.be.revertedWith("Can not whitelist");
 
-      expect(await ad.connect(bob).mint(bobFirstCount, { value: degenCost })).to.be.ok;
-      const bobFirstWallet = await ad.walletOfOwner(bob.address);
-      expect(bobFirstWallet).to.have.lengthOf(bobFirstCount);
-      expect(bobFirstWallet[0]).to.equal(3);
+      await assertMintSuccess(ad, degenCost, bob, 1, 1);
 
-      expect(await ad.mint(ownerSecondCount, { value: degenCost })).to.be.ok;
-      const ownerSecondWallet = await ad.walletOfOwner(owner.address);
-      expect(ownerSecondWallet).to.have.lengthOf(ownerFirstCount + ownerSecondCount);
-      expect(ownerSecondWallet[0]).to.equal(1);
-      expect(ownerSecondWallet[1]).to.equal(2);
-      expect(ownerSecondWallet[2]).to.equal(4);
-      expect(ownerSecondWallet[3]).to.equal(5);
-      expect(ownerSecondWallet[4]).to.equal(6);
+      await expect(ad.connect(bob).mint(1, { value: degenCost })).to.be.revertedWith("Can not whitelist");
     });
 
   });
 
 });
+
+async function assertMintSuccess(ad: any, cost: number, signer: SignerWithAddress, num: number, alreadySupply = 0) {
+  let tokenId = await ad.totalSupply();
+
+  expect(
+    await ad.connect(signer).mint(num, {
+      value: cost,
+    })
+  )
+    .to.emit(ad, "Transfer")
+    .withArgs(ethers.constants.AddressZero, signer.address, tokenId.add(num.toString()));
+  expect(await ad.totalSupply()).to.equal(num + alreadySupply);
+}

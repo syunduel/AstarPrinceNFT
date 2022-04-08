@@ -10,15 +10,15 @@ task("accounts", "Prints the list of accounts", async (taskArgs, hre) => {
     console.log(account.address);
   }
 });
-/*
+
 task("ownerMint", "Mints from the NFT contract. (only Owner)")
   .addParam("number", "Ownermint Number")
   .setAction(async function (taskArguments, hre) {
-    const contract = await getContract(getEnvVariable("CONTRACT_NAME"), hre, getProvider());
-    const transactionResponse = await contract["_ownerMint"](taskArguments.number);
+    const contract = await getContract(getEnvVariable("CONTRACT_NAME"), hre, getProvider(hre));
+    const transactionResponse = await contract["ownerMint"](taskArguments.number);
     console.log(`Transaction Hash: ${transactionResponse.hash}`);
   });
-*/
+
 task("isPaused", "Check pause status")
   .setAction(async function (taskArguments, hre) {
 
@@ -41,6 +41,7 @@ task("unpause", "Un Pause Sale")
     const transactionResponse = await contract["pause"](false);
     console.log(`Sale Pause status changed. hash: ${transactionResponse.hash}`);
   });
+
 
 task("totalSupply", "Show Total Supply")
   .setAction(async function (taskArguments, hre) {

@@ -4,6 +4,7 @@ pragma solidity ^0.8.9;
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
 import "@openzeppelin/contracts/utils/Strings.sol";
+import "hardhat/console.sol";
 
 contract AstarCats is ERC721Enumerable, Ownable {
     using Strings for uint256;
@@ -15,9 +16,10 @@ contract AstarCats is ERC721Enumerable, Ownable {
     uint256 public maxMintAmount = 10;
     bool public paused = true;
     bool public revealed = false;
+    bool public needWhiteList = true;
     string public notRevealedUri;
-    uint256 private _whiteListCount = 0;
-    mapping(address => uint256) private _whiteLists;
+    uint256 private whiteListCount = 0;
+    mapping(address => uint256) private whiteLists;
 
     constructor(
         string memory _name,
@@ -39,19 +41,27 @@ contract AstarCats is ERC721Enumerable, Ownable {
         require(_mintAmount > 0, "Mint amount is 0");
         require(_mintAmount <= maxMintAmount, "maxMintAmount over");
         require(supply + _mintAmount <= maxSupply, "End of supply");
-
-        if (msg.sender != owner()) {
-            require(
-                msg.value >= cost * _mintAmount,
-                "Not enough funds for mint"
-            );
-            require(
-                balanceOf(msg.sender) + _mintAmount <= maxMintAmount,
-                "maxMintAmount over"
-            );
+        require(msg.value >= cost * _mintAmount, "Not enough funds for mint");
+        require(
+            balanceOf(msg.sender) + _mintAmount <= maxMintAmount,
+            "maxMintAmount over"
+        );
+        if (needWhiteList == true) {
+            require(whiteLists[msg.sender] >= _mintAmount, "Can not whitelist");
         }
 
         for (uint256 i = 1; i <= _mintAmount; i++) {
+            _safeMint(msg.sender, supply + i);
+            if (needWhiteList == true) {
+                whiteLists[_msgSender()]--;
+            }
+        }
+    }
+
+    function ownerMint(uint256 count) public onlyOwner {
+        uint256 supply = totalSupply();
+
+        for (uint256 i = 1; i < count; i++) {
             _safeMint(msg.sender, supply + i);
         }
     }
@@ -106,6 +116,14 @@ contract AstarCats is ERC721Enumerable, Ownable {
         return revealed;
     }
 
+    function presale(bool _state) public onlyOwner {
+        needWhiteList = _state;
+    }
+
+    function is_presale() public view returns (bool) {
+        return needWhiteList;
+    }
+
     function setCost(uint256 _newCost) public onlyOwner {
         cost = _newCost;
     }
@@ -138,24 +156,24 @@ contract AstarCats is ERC721Enumerable, Ownable {
     }
 
     function deleteWL(address addr) public virtual onlyOwner {
-        _whiteListCount = _whiteListCount - _whiteLists[addr];
-        delete (_whiteLists[addr]);
+        whiteListCount = whiteListCount - whiteLists[addr];
+        delete (whiteLists[addr]);
     }
 
     function upsertWL(address addr, uint256 maxMint) public virtual onlyOwner {
-        _whiteListCount = _whiteListCount - _whiteLists[addr];
-        _whiteLists[addr] = maxMint;
-        _whiteListCount = _whiteListCount + maxMint;
+        whiteListCount = whiteListCount - whiteLists[addr];
+        whiteLists[addr] = maxMint;
+        whiteListCount = whiteListCount + maxMint;
     }
 
     function pushMultiWL(address[] memory list) public virtual onlyOwner {
         for (uint256 i = 0; i < list.length; i++) {
-            _whiteLists[list[i]]++;
-            _whiteListCount++;
+            whiteLists[list[i]]++;
+            whiteListCount++;
         }
     }
 
-    function whiteListCount() public view returns (uint256) {
-        return _whiteListCount;
+    function getWhiteListCount() public view returns (uint256) {
+        return whiteListCount;
     }
 }
