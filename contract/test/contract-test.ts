@@ -1,12 +1,13 @@
 import { ethers, waffle } from "hardhat";
 import { Signer } from "ethers";
+import type { BigNumber } from "ethers";
 import type { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 const { expect, assert } = require("chai");
-const BigNumber = require('ethers').BigNumber;
 const provider = waffle.provider;
 
 const test_config = {
-  price: 1,
+  price: 2,
+  price_pre: 1,
   contract_name: "AstarCats",
   max_supply: 7777,
   max_mint: 10,
@@ -49,11 +50,19 @@ describe("AstarCats contract", function () {
       expect(await ad.is_presale()).to.equal(true);
     });
 
-    it("Confirm Cat price", async function () {
+    it("Confirm Pre Cat price", async function () {
+      const cost = ethers.utils.parseUnits(test_config.price_pre.toString(), 0)
+      const expectedCost = cost.mul(ethers.constants.WeiPerEther);
+      expect(await ad.getCurrentCost()).to.equal(expectedCost);
+    });
+
+    it("Confirm Public Cat price", async function () {
       const cost = ethers.utils.parseUnits(test_config.price.toString(), 0)
       const expectedCost = cost.mul(ethers.constants.WeiPerEther);
-      expect(await ad.cost()).to.equal(expectedCost);
+      await ad.setPresale(false);
+      expect(await ad.getCurrentCost()).to.equal(expectedCost);
     });
+
 
   });
 
@@ -73,12 +82,12 @@ describe("AstarCats contract", function () {
     });
 
     it("Non-owner cannot mint without enough balance", async () => {
-      const degenCost = await ad.cost();
+      const degenCost = await ad.getCurrentCost();
       await expect(ad.connect(bob).publicMint(1, { value: degenCost.sub(1) })).to.be.reverted;
     });
 
     it("Owner and Bob mint", async () => {
-      const degenCost = await ad.cost();
+      const degenCost = await ad.getCurrentCost();
       let tokenId = await ad.totalSupply();
       expect(await ad.totalSupply()).to.equal(0);
       expect(
@@ -103,7 +112,7 @@ describe("AstarCats contract", function () {
     });
 
     it("Minting tokens increased contract balance", async () => {
-      const degenCost = await ad.cost();
+      const degenCost = await ad.getCurrentCost();
       const tokenId = await ad.totalSupply();
 
       // Mint first token and expect a balance increase
@@ -117,7 +126,7 @@ describe("AstarCats contract", function () {
     });
 
     it("Bob mints " + test_config.max_mint, async () => {
-      const degenCost = await ad.cost();
+      const degenCost = await ad.getCurrentCost();
       const tokenId = await ad.totalSupply();
 
       expect(
@@ -132,7 +141,7 @@ describe("AstarCats contract", function () {
     });
 
     it("Bob mints 1 plus " + (test_config.max_mint - 1), async () => {
-      const degenCost = await ad.cost();
+      const degenCost = await ad.getCurrentCost();
       const tokenId = await ad.totalSupply();
 
       expect(
@@ -156,7 +165,7 @@ describe("AstarCats contract", function () {
     });
 
     it("Bob fails to mints " + (test_config.max_mint + 1), async () => {
-      const degenCost = await ad.cost();
+      const degenCost = await ad.getCurrentCost();
       const tokenId = await ad.totalSupply();
 
       await expect(ad.connect(bob).publicMint((test_config.max_mint + 1), { value: degenCost.mul((test_config.max_mint + 1)), }))
@@ -164,7 +173,7 @@ describe("AstarCats contract", function () {
     });
 
     it(`Bob fails to mints ${test_config.max_mint} plus 1`, async () => {
-      const degenCost = await ad.cost();
+      const degenCost = await ad.getCurrentCost();
       const tokenId = await ad.totalSupply();
 
       expect(
@@ -184,7 +193,7 @@ describe("AstarCats contract", function () {
     });
 
     it(`Bob fails to mints 1 plus ${test_config.max_mint}`, async () => {
-      const degenCost = await ad.cost();
+      const degenCost = await ad.getCurrentCost();
       const tokenId = await ad.totalSupply();
 
       expect(
@@ -204,13 +213,30 @@ describe("AstarCats contract", function () {
     });
 
     it("Bob fails to mints 2 with funds for 1", async () => {
-      const degenCost = await ad.cost();
+      const degenCost = await ad.getCurrentCost();
 
       await expect(ad.connect(bob).publicMint(2, { value: degenCost }))
         .to.revertedWith("Not enough funds for mint");
 
       expect(await ad.totalSupply()).to.equal(0);
     });
+
+    it("Public Sale Price Boundary Check", async () => {
+      const cost = ethers.utils.parseUnits(test_config.price.toString(), 0).mul(ethers.constants.WeiPerEther);
+      await assertPublicMintSuccess(ad, cost, bob, 1);
+      await assertPublicMintSuccess(ad, cost.add(1), bob, 1, 1);
+      await expect(ad.connect(bob).publicMint(1, { value: cost.sub(1) }))
+        .to.revertedWith("Not enough funds for mint");
+
+      expect(await ad.totalSupply()).to.equal(2);
+    });
+
+    it("Pre Sale price can not buy", async () => {
+      const cost = ethers.utils.parseUnits(test_config.price_pre.toString(), 0).mul(ethers.constants.WeiPerEther);
+      await expect(ad.connect(bob).publicMint(1, { value: cost.sub(1) }))
+        .to.revertedWith("Not enough funds for mint");
+    });
+
 
   });
 
@@ -224,7 +250,7 @@ describe("AstarCats contract", function () {
     });
 
     it("URI not visible before reveal", async function () {
-      const degenCost = await ad.cost();
+      const degenCost = await ad.getCurrentCost();
       expect(await ad.publicMint(1, { value: degenCost })).to.be.ok;
       expect(await ad.tokenURI(1)).to.equal(not_revealed_uri);
     });
@@ -232,7 +258,7 @@ describe("AstarCats contract", function () {
     it("URI visible after reveal", async function () {
       expect(ad.reveal()).to.be.ok;
 
-      const degenCost = await ad.cost();
+      const degenCost = await ad.getCurrentCost();
       expect(await ad.publicMint(5, { value: degenCost.mul(5) })).to.be.ok;
 
       const baseUri = "baseUri/";
@@ -248,7 +274,7 @@ describe("AstarCats contract", function () {
 
   describe("Whitelist checks", function () {
     it("Non Whitelisted user cant buy on PreSale", async function () {
-      const degenCost = await ad.cost();
+      const degenCost = await ad.getCurrentCost();
       await expect(ad.connect(bob).preMint(1, { value: degenCost }))
         .to.be.revertedWith("Can not whitelist");
       await expect(ad.connect(owner).preMint(1, { value: degenCost }))
@@ -256,45 +282,45 @@ describe("AstarCats contract", function () {
     });
 
     it("Whitelisted user can buy on PreSale", async function () {
-      const degenCost = await ad.cost();
+      const degenCost = await ad.getCurrentCost();
       let tokenId = await ad.totalSupply();
-
       expect(await ad.pushMultiWL([bob.address])).to.be.ok;
       expect(await ad.getWhiteListCount()).to.equal(1);
-      await assertMintSuccess(ad, degenCost, bob, 1);
-
+      await assertPreMintSuccess(ad, degenCost, bob, 1);
       await expect(ad.connect(bob).preMint(1, { value: degenCost })).to.be.revertedWith("Can not whitelist");
     });
 
     it("Whitelisted user can buy 5", async function () {
-      const degenCost = (await ad.cost()).mul(5);
+      const degenCost = (await ad.getCurrentCost()).mul(5);
       let tokenId = await ad.totalSupply();
       expect(await ad.pushMultiWL([bob.address, bob.address, bob.address, bob.address, bob.address])).to.be.ok;
-      await assertMintSuccess(ad, degenCost, bob, 5);
-
+      await assertPreMintSuccess(ad, degenCost, bob, 5);
       await expect(ad.connect(bob).preMint(1, { value: degenCost })).to.be.revertedWith("Can not whitelist");
     });
 
     it("Whitelisted user can buy 3 + 2", async function () {
-      let degenCost = (await ad.cost()).mul(3);
+      let degenCost = (await ad.getCurrentCost()).mul(3);
       expect(await ad.pushMultiWL([bob.address, bob.address, bob.address, bob.address, bob.address])).to.be.ok;
-      await assertMintSuccess(ad, degenCost, bob, 3);
-      await assertMintSuccess(ad, degenCost, bob, 2, 3);
-
+      await assertPreMintSuccess(ad, degenCost, bob, 3);
+      await assertPreMintSuccess(ad, degenCost, bob, 2, 3);
       await expect(ad.connect(bob).preMint(1, { value: degenCost })).to.be.revertedWith("Can not whitelist");
     });
 
     it("Non WhiteList user block after Whitelisted user buy", async function () {
-      const degenCost = await ad.cost();
-
+      const degenCost = await ad.getCurrentCost();
       expect(await ad.pushMultiWL([bob.address, bob.address])).to.be.ok;
       expect(await ad.getWhiteListCount()).to.equal(2);
-      await assertMintSuccess(ad, degenCost, bob, 1);
-
+      await assertPreMintSuccess(ad, degenCost, bob, 1);
       await expect(ad.connect(alis).preMint(1, { value: degenCost })).to.be.revertedWith("Can not whitelist");
+      await assertPreMintSuccess(ad, degenCost, bob, 1, 1);
+      await expect(ad.connect(bob).preMint(1, { value: degenCost })).to.be.revertedWith("Can not whitelist");
+    });
 
-      await assertMintSuccess(ad, degenCost, bob, 1, 1);
-
+    it("Block Overallocate Check", async function () {
+      const degenCost = (await ad.getCurrentCost()).mul(3);
+      let tokenId = await ad.totalSupply();
+      expect(await ad.pushMultiWL([bob.address, bob.address, bob.address])).to.be.ok;
+      await assertPreMintSuccess(ad, degenCost, bob, 3);
       await expect(ad.connect(bob).preMint(1, { value: degenCost })).to.be.revertedWith("Can not whitelist");
     });
 
@@ -302,11 +328,24 @@ describe("AstarCats contract", function () {
 
 });
 
-async function assertMintSuccess(ad: any, cost: number, signer: SignerWithAddress, num: number, alreadySupply = 0) {
+async function assertPreMintSuccess(ad: any, cost: number, signer: SignerWithAddress, num: number, alreadySupply = 0) {
   let tokenId = await ad.totalSupply();
 
   expect(
     await ad.connect(signer).preMint(num, {
+      value: cost,
+    })
+  )
+    .to.emit(ad, "Transfer")
+    .withArgs(ethers.constants.AddressZero, signer.address, tokenId.add(num.toString()));
+  expect(await ad.totalSupply()).to.equal(num + alreadySupply);
+}
+
+async function assertPublicMintSuccess(ad: any, cost: number | BigNumber, signer: SignerWithAddress, num: number, alreadySupply = 0) {
+  let tokenId = await ad.totalSupply();
+
+  expect(
+    await ad.connect(signer).publicMint(num, {
       value: cost,
     })
   )

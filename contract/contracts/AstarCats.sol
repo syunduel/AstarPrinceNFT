@@ -11,7 +11,8 @@ contract AstarCats is ERC721Enumerable, Ownable {
 
     string baseURI = "";
     string public baseExtension = ".json";
-    uint256 public cost = 1 ether;
+    uint256 private preCost = 1 ether;
+    uint256 private publicCost = 2 ether;
     uint256 public maxSupply = 7777;
     uint256 public maxMintAmount = 10;
     bool public paused = true;
@@ -36,7 +37,8 @@ contract AstarCats is ERC721Enumerable, Ownable {
 
     function publicMint(uint256 _mintAmount) public payable {
         uint256 supply = totalSupply();
-        mintCheck(_mintAmount, supply);
+        uint256 cost = publicCost * _mintAmount;
+        mintCheck(_mintAmount, supply, cost);
 
         for (uint256 i = 1; i <= _mintAmount; i++) {
             _safeMint(msg.sender, supply + i);
@@ -45,7 +47,8 @@ contract AstarCats is ERC721Enumerable, Ownable {
 
     function preMint(uint256 _mintAmount) public payable {
         uint256 supply = totalSupply();
-        mintCheck(_mintAmount, supply);
+        uint256 cost = preCost * _mintAmount;
+        mintCheck(_mintAmount, supply, cost);
         require(presale, "This time is not presale");
         require(whiteLists[msg.sender] >= _mintAmount, "Can not whitelist");
 
@@ -55,12 +58,16 @@ contract AstarCats is ERC721Enumerable, Ownable {
         }
     }
 
-    function mintCheck(uint256 _mintAmount, uint256 supply) private {
+    function mintCheck(
+        uint256 _mintAmount,
+        uint256 supply,
+        uint256 cost
+    ) private view {
         require(!paused, "Cats are lazy, call to wake them up");
         require(_mintAmount > 0, "Mint amount is 0");
         require(_mintAmount <= maxMintAmount, "maxMintAmount over");
         require(supply + _mintAmount <= maxSupply, "End of supply");
-        require(msg.value >= cost * _mintAmount, "Not enough funds for mint");
+        require(msg.value >= cost, "Not enough funds for mint");
         require(
             balanceOf(msg.sender) + _mintAmount <= maxMintAmount,
             "maxMintAmount over"
@@ -133,8 +140,20 @@ contract AstarCats is ERC721Enumerable, Ownable {
         return presale;
     }
 
-    function setCost(uint256 _newCost) public onlyOwner {
-        cost = _newCost;
+    function getCurrentCost() public view returns (uint256) {
+        if (presale) {
+            return preCost;
+        } else {
+            return publicCost;
+        }
+    }
+
+    function setPreCost(uint256 _newCost) public onlyOwner {
+        preCost = _newCost;
+    }
+
+    function setPublicCost(uint256 _newCost) public onlyOwner {
+        publicCost = _newCost;
     }
 
     function setMaxMintAmount(uint256 _newMaxMintAmount) public onlyOwner {
