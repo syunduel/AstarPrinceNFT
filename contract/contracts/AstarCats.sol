@@ -14,7 +14,7 @@ contract AstarCats is ERC721Enumerable, Ownable {
     uint256 private preCost = 2 ether;
     uint256 private publicCost = 3 ether;
     uint256 public maxSupply = 7777;
-    uint256 public publicMaxMintAmount = 10;
+    uint256 public publicMaxPerTx = 10;
     bool public paused = true;
     bool public revealed = false;
     bool public presale = true;
@@ -35,23 +35,31 @@ contract AstarCats is ERC721Enumerable, Ownable {
         return baseURI;
     }
 
+    // public mint
     function publicMint(uint256 _mintAmount) public payable {
         uint256 supply = totalSupply();
         uint256 cost = publicCost * _mintAmount;
         mintCheck(_mintAmount, supply, cost);
-        require(_mintAmount <= publicMaxMintAmount, "mint limit over");
+        require(
+            _mintAmount <= publicMaxPerTx,
+            "Mint amount cannot exceed 10 per Tx."
+        );
 
         for (uint256 i = 1; i <= _mintAmount; i++) {
             _safeMint(msg.sender, supply + i);
         }
     }
 
+    // catlist mint
     function preMint(uint256 _mintAmount) public payable {
         uint256 supply = totalSupply();
         uint256 cost = preCost * _mintAmount;
         mintCheck(_mintAmount, supply, cost);
-        require(presale, "This time is not presale");
-        require(whiteLists[msg.sender] >= _mintAmount, "Can not whitelist");
+        require(presale, "Presale is not active.");
+        require(
+            whiteLists[msg.sender] >= _mintAmount,
+            "CL: Five cats max per address in Catlist."
+        );
 
         for (uint256 i = 1; i <= _mintAmount; i++) {
             _safeMint(msg.sender, supply + i);
@@ -64,10 +72,13 @@ contract AstarCats is ERC721Enumerable, Ownable {
         uint256 supply,
         uint256 cost
     ) private view {
-        require(!paused, "Cats are lazy, call to wake them up");
-        require(_mintAmount > 0, "Mint amount is 0");
-        require(supply + _mintAmount <= maxSupply, "End of supply");
-        require(msg.value >= cost, "Not enough funds for mint");
+        require(!paused, "Mint is not active.");
+        require(_mintAmount > 0, "Mint amount cannot be zero");
+        require(
+            supply + _mintAmount <= maxSupply,
+            "Total supply cannot exceed maxSupply"
+        );
+        require(msg.value >= cost, "Not enough funds provided for mint");
     }
 
     function ownerMint(uint256 count) public onlyOwner {
@@ -119,7 +130,7 @@ contract AstarCats is ERC721Enumerable, Ownable {
         presale = _state;
     }
 
-    function is_presale() public view returns (bool) {
+    function is_presaleActive() public view returns (bool) {
         return presale;
     }
 
@@ -159,7 +170,7 @@ contract AstarCats is ERC721Enumerable, Ownable {
         delete (whiteLists[addr]);
     }
 
-    function upsertWL(address addr, uint256 maxMint) public virtual onlyOwner {
+    function updateWL(address addr, uint256 maxMint) public virtual onlyOwner {
         whiteListCount = whiteListCount - whiteLists[addr];
         whiteLists[addr] = maxMint;
         whiteListCount = whiteListCount + maxMint;
@@ -179,5 +190,13 @@ contract AstarCats is ERC721Enumerable, Ownable {
     function withdraw() external virtual {
         uint256 royalty = address(this).balance;
         Address.sendValue(payable(owner()), royalty);
+    }
+
+    function safeTransferFrom(
+        address from,
+        address to,
+        uint256 tokenId
+    ) public virtual override(ERC721) {
+        super.safeTransferFrom(from, to, tokenId);
     }
 }
