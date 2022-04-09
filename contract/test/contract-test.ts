@@ -6,8 +6,8 @@ const { expect, assert } = require("chai");
 const provider = waffle.provider;
 
 const test_config = {
-  price: 2,
-  price_pre: 1,
+  price: 300,
+  price_pre: 250,
   contract_name: "AstarCats",
   max_supply: 7777,
   max_mint: 10,
