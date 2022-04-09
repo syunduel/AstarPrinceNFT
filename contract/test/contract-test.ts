@@ -72,6 +72,28 @@ describe("AstarCats contract", function () {
       await expect(ad.connect(owner).ownerMint(1)).to.be.ok;
     });
 
+    it("Ownership Transform", async () => {
+      await ad.connect(owner).transferOwnership(bob.address);
+      await expect(ad.connect(bob).ownerMint(1)).to.be.ok;
+    });
+
+    it("WithDraw funds", async () => {
+      await ad.setPresale(false);
+      const cost = await ad.getCurrentCost();
+      const new_owner = ethers.Wallet.createRandom();
+
+      expect(await ad.provider.getBalance(ad.address)).to.equal(0);
+      await assertPublicMintSuccess(ad, cost, bob, 1);
+      expect(await ad.provider.getBalance(ad.address)).to.equal(cost);
+      expect(await ad.provider.getBalance(new_owner.address)).to.equal(0);
+      await ad.connect(owner).transferOwnership(new_owner.address);
+      await ad.connect(owner).withdraw();
+      expect(await ad.provider.getBalance(ad.address)).to.equal(0);
+      expect(await ad.provider.getBalance(new_owner.address)).to.equal(cost);
+
+    });
+
+
     it("Non-owner cant ownermint", async () => {
       await expect(ad.connect(bob).ownerMint(1)).to.reverted;
     });

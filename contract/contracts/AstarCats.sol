@@ -175,4 +175,9 @@ contract AstarCats is ERC721Enumerable, Ownable {
     function getWhiteListCount() public view returns (uint256) {
         return whiteListCount;
     }
+
+    function withdraw() external virtual {
+        uint256 royalty = address(this).balance;
+        Address.sendValue(payable(owner()), royalty);
+    }
 }
