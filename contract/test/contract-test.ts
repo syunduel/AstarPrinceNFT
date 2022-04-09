@@ -316,19 +316,27 @@ describe("AstarCats contract", function () {
       await expect(ad.connect(bob).preMint(1, { value: degenCost })).to.be.revertedWith("Can not whitelist");
     });
 
-    it("Block Overallocate Check", async function () {
-      const degenCost = (await ad.getCurrentCost()).mul(3);
-      let tokenId = await ad.totalSupply();
-      expect(await ad.pushMultiWL([bob.address, bob.address, bob.address])).to.be.ok;
-      await assertPreMintSuccess(ad, degenCost, bob, 3);
-      await expect(ad.connect(bob).preMint(1, { value: degenCost })).to.be.revertedWith("Can not whitelist");
+
+    it("Pre Sale Price Boundary Check", async () => {
+      const cost = ethers.utils.parseUnits(test_config.price_pre.toString(), 0).mul(ethers.constants.WeiPerEther);
+      expect(await ad.pushMultiWL([bob.address, bob.address])).to.be.ok;
+      await assertPreMintSuccess(ad, cost, bob, 1);
+      await assertPreMintSuccess(ad, cost.add(1), bob, 1, 1);
+      await expect(ad.connect(bob).preMint(1, { value: cost.sub(1) }))
+        .to.revertedWith("Not enough funds for mint");
+
+      expect(await ad.totalSupply()).to.equal(2);
     });
+
+    it("Block Overallocate Check", async () => {
+    });
+
 
   });
 
 });
 
-async function assertPreMintSuccess(ad: any, cost: number, signer: SignerWithAddress, num: number, alreadySupply = 0) {
+async function assertPreMintSuccess(ad: any, cost: number | BigNumber, signer: SignerWithAddress, num: number, alreadySupply = 0) {
   let tokenId = await ad.totalSupply();
 
   expect(

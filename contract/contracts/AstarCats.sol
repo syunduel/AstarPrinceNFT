@@ -54,7 +54,7 @@ contract AstarCats is ERC721Enumerable, Ownable {
 
         for (uint256 i = 1; i <= _mintAmount; i++) {
             _safeMint(msg.sender, supply + i);
-            whiteLists[_msgSender()]--;
+            whiteLists[msg.sender]--;
         }
     }
 
@@ -80,19 +80,6 @@ contract AstarCats is ERC721Enumerable, Ownable {
         for (uint256 i = 1; i < count; i++) {
             _safeMint(msg.sender, supply + i);
         }
-    }
-
-    function walletOfOwner(address _owner)
-        public
-        view
-        returns (uint256[] memory)
-    {
-        uint256 ownerTokenCount = balanceOf(_owner);
-        uint256[] memory tokenIds = new uint256[](ownerTokenCount);
-        for (uint256 i; i < ownerTokenCount; i++) {
-            tokenIds[i] = tokenOfOwnerByIndex(_owner, i);
-        }
-        return tokenIds;
     }
 
     function tokenURI(uint256 tokenId)
