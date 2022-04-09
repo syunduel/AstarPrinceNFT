@@ -69,12 +69,12 @@ describe("AstarCats contract", function () {
 
   describe("Public Minting checks", function () {
     beforeEach(async function () {
-      await ad.presale(false);
+      await ad.setPresale(false);
     });
 
     it("Non-owner cannot mint without enough balance", async () => {
       const degenCost = await ad.cost();
-      await expect(ad.connect(bob).mint(1, { value: degenCost.sub(1) })).to.be.reverted;
+      await expect(ad.connect(bob).publicMint(1, { value: degenCost.sub(1) })).to.be.reverted;
     });
 
     it("Owner and Bob mint", async () => {
@@ -82,7 +82,7 @@ describe("AstarCats contract", function () {
       let tokenId = await ad.totalSupply();
       expect(await ad.totalSupply()).to.equal(0);
       expect(
-        await ad.mint(1, {
+        await ad.publicMint(1, {
           value: degenCost,
         })
       )
@@ -92,7 +92,7 @@ describe("AstarCats contract", function () {
       expect(await ad.totalSupply()).to.equal(1);
       tokenId = await ad.totalSupply();
       expect(
-        await ad.connect(bob).mint(1, {
+        await ad.connect(bob).publicMint(1, {
           value: degenCost,
         })
       )
@@ -108,11 +108,11 @@ describe("AstarCats contract", function () {
 
       // Mint first token and expect a balance increase
       const init_contract_balance = await provider.getBalance(ad.address);
-      expect(await ad.mint(1, { value: degenCost })).to.be.ok;
+      expect(await ad.publicMint(1, { value: degenCost })).to.be.ok;
       expect(await provider.getBalance(ad.address)).to.equal(degenCost);
 
       // Mint two additonal tokens and expect increase again
-      expect(await ad.mint(2, { value: degenCost.mul(2) })).to.be.ok;
+      expect(await ad.publicMint(2, { value: degenCost.mul(2) })).to.be.ok;
       expect(await provider.getBalance(ad.address)).to.equal(degenCost.mul(3));
     });
 
@@ -121,7 +121,7 @@ describe("AstarCats contract", function () {
       const tokenId = await ad.totalSupply();
 
       expect(
-        await ad.connect(bob).mint(test_config.max_mint, {
+        await ad.connect(bob).publicMint(test_config.max_mint, {
           value: degenCost.mul(test_config.max_mint),
         })
       )
@@ -136,7 +136,7 @@ describe("AstarCats contract", function () {
       const tokenId = await ad.totalSupply();
 
       expect(
-        await ad.connect(bob).mint(1, {
+        await ad.connect(bob).publicMint(1, {
           value: degenCost.mul(1),
         })
       )
@@ -145,7 +145,7 @@ describe("AstarCats contract", function () {
       expect(await ad.totalSupply()).to.equal(1);
 
       expect(
-        await ad.connect(bob).mint(test_config.max_mint - 1, {
+        await ad.connect(bob).publicMint(test_config.max_mint - 1, {
           value: degenCost.mul(test_config.max_mint - 1),
         })
       )
@@ -159,7 +159,7 @@ describe("AstarCats contract", function () {
       const degenCost = await ad.cost();
       const tokenId = await ad.totalSupply();
 
-      await expect(ad.connect(bob).mint((test_config.max_mint + 1), { value: degenCost.mul((test_config.max_mint + 1)), }))
+      await expect(ad.connect(bob).publicMint((test_config.max_mint + 1), { value: degenCost.mul((test_config.max_mint + 1)), }))
         .to.revertedWith("maxMintAmount over");
     });
 
@@ -168,7 +168,7 @@ describe("AstarCats contract", function () {
       const tokenId = await ad.totalSupply();
 
       expect(
-        await ad.connect(bob).mint(test_config.max_mint, {
+        await ad.connect(bob).publicMint(test_config.max_mint, {
           value: degenCost.mul(test_config.max_mint),
         })
       )
@@ -177,7 +177,7 @@ describe("AstarCats contract", function () {
       expect(await ad.totalSupply()).to.equal(test_config.max_mint);
 
       // should fail to mint additional one in new mint call
-      await expect(ad.connect(bob).mint(1, { value: degenCost }))
+      await expect(ad.connect(bob).publicMint(1, { value: degenCost }))
         .to.be.revertedWith("maxMintAmount over");
 
       expect(await ad.totalSupply()).to.equal(test_config.max_mint);
@@ -188,7 +188,7 @@ describe("AstarCats contract", function () {
       const tokenId = await ad.totalSupply();
 
       expect(
-        await ad.connect(bob).mint(1, {
+        await ad.connect(bob).publicMint(1, {
           value: degenCost.mul(1),
         })
       )
@@ -197,7 +197,7 @@ describe("AstarCats contract", function () {
       expect(await ad.totalSupply()).to.equal(1);
 
       // should fail to mint additional five in new mint call
-      await expect(ad.connect(bob).mint(test_config.max_mint, { value: degenCost.mul(test_config.max_mint) }))
+      await expect(ad.connect(bob).publicMint(test_config.max_mint, { value: degenCost.mul(test_config.max_mint) }))
         .to.revertedWith("maxMintAmount over");
 
       expect(await ad.totalSupply()).to.equal(1);
@@ -206,7 +206,7 @@ describe("AstarCats contract", function () {
     it("Bob fails to mints 2 with funds for 1", async () => {
       const degenCost = await ad.cost();
 
-      await expect(ad.connect(bob).mint(2, { value: degenCost }))
+      await expect(ad.connect(bob).publicMint(2, { value: degenCost }))
         .to.revertedWith("Not enough funds for mint");
 
       expect(await ad.totalSupply()).to.equal(0);
@@ -216,7 +216,7 @@ describe("AstarCats contract", function () {
 
   describe("URI checks", function () {
     beforeEach(async function () {
-      await ad.presale(false);
+      await ad.setPresale(false);
     });
 
     it("Token URI not available for non-minted token", async function () {
@@ -225,7 +225,7 @@ describe("AstarCats contract", function () {
 
     it("URI not visible before reveal", async function () {
       const degenCost = await ad.cost();
-      expect(await ad.mint(1, { value: degenCost })).to.be.ok;
+      expect(await ad.publicMint(1, { value: degenCost })).to.be.ok;
       expect(await ad.tokenURI(1)).to.equal(not_revealed_uri);
     });
 
@@ -233,7 +233,7 @@ describe("AstarCats contract", function () {
       expect(ad.reveal()).to.be.ok;
 
       const degenCost = await ad.cost();
-      expect(await ad.mint(5, { value: degenCost.mul(5) })).to.be.ok;
+      expect(await ad.publicMint(5, { value: degenCost.mul(5) })).to.be.ok;
 
       const baseUri = "baseUri/";
       const baseExtension = ".ext";
@@ -249,9 +249,9 @@ describe("AstarCats contract", function () {
   describe("Whitelist checks", function () {
     it("Non Whitelisted user cant buy on PreSale", async function () {
       const degenCost = await ad.cost();
-      await expect(ad.connect(bob).mint(1, { value: degenCost }))
+      await expect(ad.connect(bob).preMint(1, { value: degenCost }))
         .to.be.revertedWith("Can not whitelist");
-      await expect(ad.connect(owner).mint(1, { value: degenCost }))
+      await expect(ad.connect(owner).preMint(1, { value: degenCost }))
         .to.be.revertedWith("Can not whitelist");
     });
 
@@ -263,7 +263,7 @@ describe("AstarCats contract", function () {
       expect(await ad.getWhiteListCount()).to.equal(1);
       await assertMintSuccess(ad, degenCost, bob, 1);
 
-      await expect(ad.connect(bob).mint(1, { value: degenCost })).to.be.revertedWith("Can not whitelist");
+      await expect(ad.connect(bob).preMint(1, { value: degenCost })).to.be.revertedWith("Can not whitelist");
     });
 
     it("Whitelisted user can buy 5", async function () {
@@ -272,7 +272,7 @@ describe("AstarCats contract", function () {
       expect(await ad.pushMultiWL([bob.address, bob.address, bob.address, bob.address, bob.address])).to.be.ok;
       await assertMintSuccess(ad, degenCost, bob, 5);
 
-      await expect(ad.connect(bob).mint(1, { value: degenCost })).to.be.revertedWith("Can not whitelist");
+      await expect(ad.connect(bob).preMint(1, { value: degenCost })).to.be.revertedWith("Can not whitelist");
     });
 
     it("Whitelisted user can buy 3 + 2", async function () {
@@ -281,7 +281,7 @@ describe("AstarCats contract", function () {
       await assertMintSuccess(ad, degenCost, bob, 3);
       await assertMintSuccess(ad, degenCost, bob, 2, 3);
 
-      await expect(ad.connect(bob).mint(1, { value: degenCost })).to.be.revertedWith("Can not whitelist");
+      await expect(ad.connect(bob).preMint(1, { value: degenCost })).to.be.revertedWith("Can not whitelist");
     });
 
     it("Non WhiteList user block after Whitelisted user buy", async function () {
@@ -291,11 +291,11 @@ describe("AstarCats contract", function () {
       expect(await ad.getWhiteListCount()).to.equal(2);
       await assertMintSuccess(ad, degenCost, bob, 1);
 
-      await expect(ad.connect(alis).mint(1, { value: degenCost })).to.be.revertedWith("Can not whitelist");
+      await expect(ad.connect(alis).preMint(1, { value: degenCost })).to.be.revertedWith("Can not whitelist");
 
       await assertMintSuccess(ad, degenCost, bob, 1, 1);
 
-      await expect(ad.connect(bob).mint(1, { value: degenCost })).to.be.revertedWith("Can not whitelist");
+      await expect(ad.connect(bob).preMint(1, { value: degenCost })).to.be.revertedWith("Can not whitelist");
     });
 
   });
@@ -306,7 +306,7 @@ async function assertMintSuccess(ad: any, cost: number, signer: SignerWithAddres
   let tokenId = await ad.totalSupply();
 
   expect(
-    await ad.connect(signer).mint(num, {
+    await ad.connect(signer).preMint(num, {
       value: cost,
     })
   )

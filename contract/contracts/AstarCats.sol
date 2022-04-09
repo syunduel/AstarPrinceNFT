@@ -16,7 +16,7 @@ contract AstarCats is ERC721Enumerable, Ownable {
     uint256 public maxMintAmount = 10;
     bool public paused = true;
     bool public revealed = false;
-    bool public needWhiteList = true;
+    bool public presale = true;
     string public notRevealedUri;
     uint256 private whiteListCount = 0;
     mapping(address => uint256) private whiteLists;
@@ -34,9 +34,28 @@ contract AstarCats is ERC721Enumerable, Ownable {
         return baseURI;
     }
 
-    // public
-    function mint(uint256 _mintAmount) public payable {
+    function publicMint(uint256 _mintAmount) public payable {
         uint256 supply = totalSupply();
+        mintCheck(_mintAmount, supply);
+
+        for (uint256 i = 1; i <= _mintAmount; i++) {
+            _safeMint(msg.sender, supply + i);
+        }
+    }
+
+    function preMint(uint256 _mintAmount) public payable {
+        uint256 supply = totalSupply();
+        mintCheck(_mintAmount, supply);
+        require(presale, "This time is not presale");
+        require(whiteLists[msg.sender] >= _mintAmount, "Can not whitelist");
+
+        for (uint256 i = 1; i <= _mintAmount; i++) {
+            _safeMint(msg.sender, supply + i);
+            whiteLists[_msgSender()]--;
+        }
+    }
+
+    function mintCheck(uint256 _mintAmount, uint256 supply) private {
         require(!paused, "Cats are lazy, call to wake them up");
         require(_mintAmount > 0, "Mint amount is 0");
         require(_mintAmount <= maxMintAmount, "maxMintAmount over");
@@ -46,16 +65,6 @@ contract AstarCats is ERC721Enumerable, Ownable {
             balanceOf(msg.sender) + _mintAmount <= maxMintAmount,
             "maxMintAmount over"
         );
-        if (needWhiteList == true) {
-            require(whiteLists[msg.sender] >= _mintAmount, "Can not whitelist");
-        }
-
-        for (uint256 i = 1; i <= _mintAmount; i++) {
-            _safeMint(msg.sender, supply + i);
-            if (needWhiteList == true) {
-                whiteLists[_msgSender()]--;
-            }
-        }
     }
 
     function ownerMint(uint256 count) public onlyOwner {
@@ -116,12 +125,12 @@ contract AstarCats is ERC721Enumerable, Ownable {
         return revealed;
     }
 
-    function presale(bool _state) public onlyOwner {
-        needWhiteList = _state;
+    function setPresale(bool _state) public onlyOwner {
+        presale = _state;
     }
 
     function is_presale() public view returns (bool) {
-        return needWhiteList;
+        return presale;
     }
 
     function setCost(uint256 _newCost) public onlyOwner {
