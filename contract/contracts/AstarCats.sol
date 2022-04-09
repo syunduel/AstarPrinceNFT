@@ -14,7 +14,7 @@ contract AstarCats is ERC721Enumerable, Ownable {
     uint256 private preCost = 2 ether;
     uint256 private publicCost = 3 ether;
     uint256 public maxSupply = 7777;
-    uint256 public maxMintAmount = 10;
+    uint256 public publicMaxMintAmount = 10;
     bool public paused = true;
     bool public revealed = false;
     bool public presale = true;
@@ -39,6 +39,7 @@ contract AstarCats is ERC721Enumerable, Ownable {
         uint256 supply = totalSupply();
         uint256 cost = publicCost * _mintAmount;
         mintCheck(_mintAmount, supply, cost);
+        require(_mintAmount <= publicMaxMintAmount, "mint limit over");
 
         for (uint256 i = 1; i <= _mintAmount; i++) {
             _safeMint(msg.sender, supply + i);
@@ -65,13 +66,8 @@ contract AstarCats is ERC721Enumerable, Ownable {
     ) private view {
         require(!paused, "Cats are lazy, call to wake them up");
         require(_mintAmount > 0, "Mint amount is 0");
-        require(_mintAmount <= maxMintAmount, "maxMintAmount over");
         require(supply + _mintAmount <= maxSupply, "End of supply");
         require(msg.value >= cost, "Not enough funds for mint");
-        require(
-            balanceOf(msg.sender) + _mintAmount <= maxMintAmount,
-            "maxMintAmount over"
-        );
     }
 
     function ownerMint(uint256 count) public onlyOwner {
@@ -133,10 +129,6 @@ contract AstarCats is ERC721Enumerable, Ownable {
         } else {
             return publicCost;
         }
-    }
-
-    function setMaxMintAmount(uint256 _newMaxMintAmount) public onlyOwner {
-        maxMintAmount = _newMaxMintAmount;
     }
 
     function setNotRevealedURI(string memory _notRevealedURI) public onlyOwner {

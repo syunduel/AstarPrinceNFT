@@ -170,47 +170,7 @@ describe("AstarCats contract", function () {
       const tokenId = await ad.totalSupply();
 
       await expect(ad.connect(bob).publicMint((test_config.max_mint + 1), { value: degenCost.mul((test_config.max_mint + 1)), }))
-        .to.revertedWith("maxMintAmount over");
-    });
-
-    it(`Bob fails to mints ${test_config.max_mint} plus 1`, async () => {
-      const degenCost = await ad.getCurrentCost();
-      const tokenId = await ad.totalSupply();
-
-      expect(
-        await ad.connect(bob).publicMint(test_config.max_mint, {
-          value: degenCost.mul(test_config.max_mint),
-        })
-      )
-        .to.emit(ad, "Transfer")
-        .withArgs(ethers.constants.AddressZero, bob.address, tokenId.add(test_config.max_mint.toString()));
-      expect(await ad.totalSupply()).to.equal(test_config.max_mint);
-
-      // should fail to mint additional one in new mint call
-      await expect(ad.connect(bob).publicMint(1, { value: degenCost }))
-        .to.be.revertedWith("maxMintAmount over");
-
-      expect(await ad.totalSupply()).to.equal(test_config.max_mint);
-    });
-
-    it(`Bob fails to mints 1 plus ${test_config.max_mint}`, async () => {
-      const degenCost = await ad.getCurrentCost();
-      const tokenId = await ad.totalSupply();
-
-      expect(
-        await ad.connect(bob).publicMint(1, {
-          value: degenCost.mul(1),
-        })
-      )
-        .to.emit(ad, "Transfer")
-        .withArgs(ethers.constants.AddressZero, bob.address, tokenId.add('1'));
-      expect(await ad.totalSupply()).to.equal(1);
-
-      // should fail to mint additional five in new mint call
-      await expect(ad.connect(bob).publicMint(test_config.max_mint, { value: degenCost.mul(test_config.max_mint) }))
-        .to.revertedWith("maxMintAmount over");
-
-      expect(await ad.totalSupply()).to.equal(1);
+        .to.revertedWith("mint limit over");
     });
 
     it("Bob fails to mints 2 with funds for 1", async () => {
@@ -232,12 +192,28 @@ describe("AstarCats contract", function () {
       expect(await ad.totalSupply()).to.equal(2);
     });
 
+
+    it(`${test_config.max_mint} mint Public Sale Price Boundary Check`, async () => {
+      const cost = ethers.utils.parseUnits(test_config.price.toString(), 0).mul(ethers.constants.WeiPerEther);
+      await assertPublicMintSuccess(ad, cost.mul(test_config.max_mint), bob, test_config.max_mint);
+      await assertPublicMintSuccess(ad, cost.mul(test_config.max_mint).add(1), bob, 1, test_config.max_mint);
+      await expect(ad.connect(bob).publicMint(test_config.max_mint, { value: cost.mul(test_config.max_mint).sub(1) }))
+        .to.revertedWith("Not enough funds for mint");
+
+      expect(await ad.totalSupply()).to.equal(11);
+    });
+
     it("Pre Sale price can not buy", async () => {
       const cost = ethers.utils.parseUnits(test_config.price_pre.toString(), 0).mul(ethers.constants.WeiPerEther);
       await expect(ad.connect(bob).publicMint(1, { value: cost.sub(1) }))
         .to.revertedWith("Not enough funds for mint");
     });
 
+    it("Public sale have no wallet restriction (only TX)", async () => {
+      const cost = await ad.getCurrentCost();
+      await assertPublicMintSuccess(ad, cost.mul(test_config.max_mint), bob, test_config.max_mint);
+      await assertPublicMintSuccess(ad, cost.mul(test_config.max_mint), bob, test_config.max_mint, test_config.max_mint);
+    });
 
   });
 

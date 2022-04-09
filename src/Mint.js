@@ -10,14 +10,14 @@ import BN from 'bn.js';
 const truncate = (input, len) =>
   input.length > len ? `${input.substring(0, len)}...` : input;
 
-  export const StyledButton = styled.button`
+export const StyledButton = styled.button`
   padding: 16px 40px;
   border-radius: 10px;
   border: none;
-  background-color: ${props => props.disabled ? '#505050' : '#e253e5' };
+  background-color: ${props => props.disabled ? '#505050' : '#e253e5'};
   font-weight: bold;
   color: var(--secondary-text);
-  cursor: ${props => props.disabled ? 'not-allowed' : 'pointer' };
+  cursor: ${props => props.disabled ? 'not-allowed' : 'pointer'};
   box-shadow: 0px 6px 0px -2px rgba(250, 250, 250, 0.3);
   -webkit-box-shadow: 0px 6px 0px -2px rgba(250, 250, 250, 0.3);
   -moz-box-shadow: 0px 6px 0px -2px rgba(250, 250, 250, 0.3);
@@ -116,7 +116,7 @@ const Mint = () => {
     setFeedback(`Minting your ${CONFIG.NFT_NAME}...`);
     setClaimingNft(true);
     blockchain.smartContract.methods
-      .mint(mintAmount)
+      .publicMint(mintAmount)
       .send({
         gasLimit: String(totalGasLimit),
         to: CONFIG.CONTRACT_ADDRESS,
@@ -262,7 +262,7 @@ const Mint = () => {
             </s.TextDescription>
             <s.SpacerSmall />
             {blockchain.account === "" ||
-            blockchain.smartContract === null ? (
+              blockchain.smartContract === null ? (
               <s.Container ai={"center"} jc={"center"}>
                 <s.TextDescription
                   style={{
@@ -363,29 +363,29 @@ const Mint = () => {
       <s.SpacerLarge />
       <s.Container>
         <s.TextDescription
-            style={{
-              textAlign: "center",
-              color: "var(--primary-text)",
-            }}
-          >
-            Please make sure you are connected to the right network (
-            {CONFIG.NETWORK.NAME}) and the correct address. Please note:
-            Once you make the purchase, you cannot undo this action.
-          </s.TextDescription>
-          <s.SpacerSmall />
-          <s.TextDescription
-            style={{
-              textAlign: "center",
-              color: "var(--primary-text)",
-            }}
-          >
-            We have set the gas limit to {CONFIG.GAS_LIMIT} for the contract to
-            successfully mint your NFT. We recommend that you don't lower the
-            gas limit.
-          </s.TextDescription>
-          <s.SpacerLarge />
-          <s.SpacerLarge />
-      </s.Container>            
+          style={{
+            textAlign: "center",
+            color: "var(--primary-text)",
+          }}
+        >
+          Please make sure you are connected to the right network (
+          {CONFIG.NETWORK.NAME}) and the correct address. Please note:
+          Once you make the purchase, you cannot undo this action.
+        </s.TextDescription>
+        <s.SpacerSmall />
+        <s.TextDescription
+          style={{
+            textAlign: "center",
+            color: "var(--primary-text)",
+          }}
+        >
+          We have set the gas limit to {CONFIG.GAS_LIMIT} for the contract to
+          successfully mint your NFT. We recommend that you don't lower the
+          gas limit.
+        </s.TextDescription>
+        <s.SpacerLarge />
+        <s.SpacerLarge />
+      </s.Container>
     </ResponsiveWrapper>
   );
 };
