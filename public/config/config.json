@@ -1,7 +1,7 @@
 {
-  "CONTRACT_ADDRESS": "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512",
+  "CONTRACT_ADDRESS": "0x045F7749D9e4B31a578470e26837BB9A0a701958",
   "SCAN_LINK": "https://astar.subscan.io/account/0x60BC65939E4B08F0479e23445109c5eB9020d58F",
-  "NETWORK_shibuya": {
+  "NETWORK": {
     "NAME": "shibuya",
     "SYMBOL": "SBY",
     "ID": 81,
@@ -9,7 +9,7 @@
     "RPC_URL": "https://rpc.astar.network:8545",
     "BLOCK_EXPLORER_URL": "https://astar.subscan.io"
   },
-  "NETWORK": {
+  "NETWORK_localhost": {
     "NAME": "localhost",
     "SYMBOL": "ETH",
     "ID": 31337,
@@ -20,8 +20,8 @@
   "NFT_NAME": "Astar Cats",
   "SYMBOL": "CAT",
   "MAX_SUPPLY": 7777,
-  "WEI_COST": 20000000000000000000,
-  "DISPLAY_COST": 20,
+  "WEI_COST": 300000000000000000000,
+  "DISPLAY_COST": 300,
   "GAS_LIMIT": 300000,
   "MARKETPLACE": "TofuNFT",
   "MARKETPLACE_LINK": "https://tofunft.com/collection/astardegens/items",
