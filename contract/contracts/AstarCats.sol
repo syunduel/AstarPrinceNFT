@@ -11,8 +11,8 @@ contract AstarCats is ERC721Enumerable, Ownable {
 
     string baseURI = "";
     string public baseExtension = ".json";
-    uint256 private preCost = 250 ether;
-    uint256 private publicCost = 300 ether;
+    uint256 private preCost = 2 ether;
+    uint256 private publicCost = 3 ether;
     uint256 public maxSupply = 7777;
     uint256 public maxMintAmount = 10;
     bool public paused = true;
@@ -133,14 +133,6 @@ contract AstarCats is ERC721Enumerable, Ownable {
         } else {
             return publicCost;
         }
-    }
-
-    function setPreCost(uint256 _newCost) public onlyOwner {
-        preCost = _newCost;
-    }
-
-    function setPublicCost(uint256 _newCost) public onlyOwner {
-        publicCost = _newCost;
     }
 
     function setMaxMintAmount(uint256 _newMaxMintAmount) public onlyOwner {

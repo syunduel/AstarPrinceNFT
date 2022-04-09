@@ -6,8 +6,8 @@ const { expect, assert } = require("chai");
 const provider = waffle.provider;
 
 const test_config = {
-  price: 300,
-  price_pre: 250,
+  price: 3,
+  price_pre: 2,
   contract_name: "AstarCats",
   max_supply: 7777,
   max_mint: 10,
@@ -34,6 +34,7 @@ describe("AstarCats contract", function () {
     expect(await ad.is_paused()).to.equal(true);
     expect(await ad.is_revealed()).to.equal(false);
     await ad.pause(false);
+
   });
 
   describe("Basic checks", function () {
