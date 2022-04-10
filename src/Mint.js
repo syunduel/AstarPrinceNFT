@@ -98,7 +98,7 @@ const Mint = () => {
     MARKETPLACE_LINK: "",
     SHOW_BACKGROUND: false,
   });
-  const MAX_MINT_AMOUNT = 5;
+  const MAX_MINT_AMOUNT = 10;
   const CAN_MINT = true;
 
   const { containerProps, indicatorEl } = useLoading({
@@ -186,7 +186,7 @@ const Mint = () => {
         jc={"center"}
         ai={"center"}
         style={{
-          backgroundColor: "rgba(2,3,11,0.4)",
+          backgroundColor: "rgba(2,30,11,0.7)",
           padding: 24,
           borderRadius: 24,
           border: "0px dashed var(--secondary)",
@@ -199,7 +199,8 @@ const Mint = () => {
             color: "var(--secondary)",
           }}
         >
-          Minting starts on February 21<span style={{ verticalAlign: 'super', fontSize: 12 }}>st</span> 2022 at 13:00 UTC.
+          Catlist sale will take place on April 15th, 2022 7:00 AM EST<br />
+          Public sale will take place on April 15, 2022 11:00 PM EST
         </s.TextTitle>
         <s.TextDescription style={{ textAlign: "center", color: "var(--accent-text)" }}>
           NFT Marketplace
@@ -236,15 +237,6 @@ const Mint = () => {
             >
               The sale has ended.
             </s.TextTitle>
-            {/* <s.TextDescription
-              style={{ textAlign: "center", color: "var(--accent-text)" }}
-            >
-              You can still find {CONFIG.NFT_NAME} on
-            </s.TextDescription>
-            <s.SpacerSmall />
-            <StyledLink target={"_blank"} href={CONFIG.MARKETPLACE_LINK}>
-              {CONFIG.MARKETPLACE}
-            </StyledLink> */}
           </>
         ) : (
           <>
@@ -365,7 +357,7 @@ const Mint = () => {
         <s.TextDescription
           style={{
             textAlign: "center",
-            color: "var(--primary-text)",
+            color: "var(--accent)",
           }}
         >
           Please make sure you are connected to the right network (
@@ -376,7 +368,7 @@ const Mint = () => {
         <s.TextDescription
           style={{
             textAlign: "center",
-            color: "var(--primary-text)",
+            color: "var(--accent)",
           }}
         >
           We have set the gas limit to {CONFIG.GAS_LIMIT} for the contract to
