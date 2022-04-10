@@ -1,6 +1,6 @@
 {
-  "CONTRACT_ADDRESS": "0x045F7749D9e4B31a578470e26837BB9A0a701958",
-  "SCAN_LINK": "https://astar.subscan.io/account/0x60BC65939E4B08F0479e23445109c5eB9020d58F",
+  "CONTRACT_ADDRESS": "0xed1D216CA6AC895f040cd85b61a9351fe2d5D7fD",
+  "SCAN_LINK": "https://astar.subscan.io/account/0xed1D216CA6AC895f040cd85b61a9351fe2d5D7fD",
   "NETWORK": {
     "NAME": "shibuya",
     "SYMBOL": "SBY",

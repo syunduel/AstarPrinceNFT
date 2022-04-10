@@ -41,6 +41,10 @@ contract AstarCats is ERC721Enumerable, Ownable {
         uint256 cost = publicCost * _mintAmount;
         mintCheck(_mintAmount, supply, cost);
         require(
+            !presale,
+            "Presale is active. public sale can not active on PreSale"
+        );
+        require(
             _mintAmount <= publicMaxPerTx,
             "Mint amount cannot exceed 10 per Tx."
         );
@@ -198,5 +202,13 @@ contract AstarCats is ERC721Enumerable, Ownable {
         uint256 tokenId
     ) public virtual override(ERC721) {
         super.safeTransferFrom(from, to, tokenId);
+    }
+
+    function whiteListCountOfOwner(address owner)
+        public
+        view
+        returns (uint256)
+    {
+        return whiteLists[owner];
     }
 }

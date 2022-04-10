@@ -104,6 +104,12 @@ describe("AstarCats contract", function () {
       await ad.setPresale(false);
     });
 
+    it("PublicMint fail if presale is active", async () => {
+      const degenCost = await ad.getCurrentCost();
+      await ad.setPresale(true);
+      await expect(ad.connect(bob).publicMint(1, { value: degenCost })).to.revertedWith("Presale is active. public sale can not active on PreSale");
+    });
+
     it("Non-owner cannot mint without enough balance", async () => {
       const degenCost = await ad.getCurrentCost();
       await expect(ad.connect(bob).publicMint(1, { value: degenCost.sub(1) })).to.be.reverted;
@@ -279,6 +285,14 @@ describe("AstarCats contract", function () {
       await expect(ad.connect(owner).preMint(1, { value: degenCost }))
         .to.be.revertedWith("CL: Five cats max per address in Catlist");
     });
+
+    it("Presale can't open on PublicSale", async function () {
+      const degenCost = await ad.getCurrentCost();
+      await ad.getPresale(false);
+      await expect(ad.connect(bob).preMint(1, { value: degenCost }))
+        .to.be.revertedWith("Presale is not active.");
+    });
+
 
     it("Whitelisted user can buy on PreSale", async function () {
       const degenCost = await ad.getCurrentCost();
