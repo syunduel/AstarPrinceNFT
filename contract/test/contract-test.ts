@@ -107,7 +107,8 @@ describe("AstarCats contract", function () {
     it("PublicMint fail if presale is active", async () => {
       const degenCost = await ad.getCurrentCost();
       await ad.setPresale(true);
-      await expect(ad.connect(bob).publicMint(1, { value: degenCost })).to.revertedWith("Presale is active. public sale can not active on PreSale");
+      await expect(ad.connect(bob)
+        .publicMint(1, { value: degenCost })).to.revertedWith("Public mint is paused while Presale is active.");
     });
 
     it("Non-owner cannot mint without enough balance", async () => {
@@ -288,7 +289,7 @@ describe("AstarCats contract", function () {
 
     it("Presale can't open on PublicSale", async function () {
       const degenCost = await ad.getCurrentCost();
-      await ad.getPresale(false);
+      await ad.setPresale(false);
       await expect(ad.connect(bob).preMint(1, { value: degenCost }))
         .to.be.revertedWith("Presale is not active.");
     });
