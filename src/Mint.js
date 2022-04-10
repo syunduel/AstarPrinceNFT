@@ -91,8 +91,6 @@ const Mint = () => {
     NFT_NAME: "",
     SYMBOL: "",
     MAX_SUPPLY: 1,
-    WEI_COST: 0,
-    DISPLAY_COST: 0,
     GAS_LIMIT: 0,
     MARKETPLACE: "",
     MARKETPLACE_LINK: "",
@@ -107,7 +105,7 @@ const Mint = () => {
   });
 
   const claimNFTs = () => {
-    let cost = CONFIG.WEI_COST;
+    let cost = CONFIG.PRESALE ? CONFIG.WEI_COST_PRE : CONFIG.WEI_COST_PUBLIC;
     let gasLimit = CONFIG.GAS_LIMIT;
     let totalCostWei = new BN(cost.toString()).muln(mintAmount);
     let totalGasLimit = String(gasLimit * mintAmount);
@@ -115,14 +113,16 @@ const Mint = () => {
     console.log("Gas limit: ", totalGasLimit);
     setFeedback(`Minting your ${CONFIG.NFT_NAME}...`);
     setClaimingNft(true);
-    blockchain.smartContract.methods
-      .publicMint(mintAmount)
-      .send({
-        gasLimit: String(totalGasLimit),
-        to: CONFIG.CONTRACT_ADDRESS,
-        from: blockchain.account,
-        value: totalCostWei,
-      })
+    const method = CONFIG.PRESALE ? blockchain.smartContract.methods
+      .preMint(mintAmount) : blockchain.smartContract.methods
+        .publicMint(mintAmount);
+
+    method.send({
+      gasLimit: String(totalGasLimit),
+      to: CONFIG.CONTRACT_ADDRESS,
+      from: blockchain.account,
+      value: totalCostWei,
+    })
       .once("error", (err) => {
         console.log(err);
         setFeedback("Sorry, something went wrong please try again later.");
@@ -243,7 +243,7 @@ const Mint = () => {
             <s.TextTitle
               style={{ textAlign: "center", color: "var(--accent-text)" }}
             >
-              1 {CONFIG.SYMBOL} costs {CONFIG.DISPLAY_COST}{" "}
+              1 {CONFIG.SYMBOL} costs {CONFIG.PRESALE ? CONFIG.DISPLAY_COST_PRE : CONFIG.DISPLAY_COST_PUBLIC}{" "}
               {CONFIG.NETWORK.SYMBOL}.
             </s.TextTitle>
             <s.SpacerXSmall />
@@ -251,6 +251,11 @@ const Mint = () => {
               style={{ textAlign: "center", color: "var(--accent-text)" }}
             >
               Excluding gas fees.
+            </s.TextDescription>
+            <s.TextDescription
+              style={{ textAlign: "center", color: "var(--accent-text)" }}
+            >
+              {CONFIG.PRESALE ? "PreSale" : "PublicSale"} now!
             </s.TextDescription>
             <s.SpacerSmall />
             {blockchain.account === "" ||
