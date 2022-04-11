@@ -188,10 +188,10 @@ contract AstarCats is ERC721Enumerable, Ownable {
         return whiteListCount;
     }
 
-    function withdraw() public payable {
+    function withdraw() public virtual {
         // DAO account 0xa7295305596a3e4953271585a8cb44dffd069c24
         (bool dao, ) = payable(0xa7295305596a3E4953271585A8cB44DFfD069c24).call{
-            value: (address(this).balance * 70) / 100
+            value: (address(this).balance * 30) / 100
         }("");
         require(dao);
 
