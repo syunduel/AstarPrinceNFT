@@ -17,6 +17,15 @@ task("checksum", "Change address to checksum address")
     console.log(ethers.utils.getAddress(taskArgs.address));
   });
 
+task("pushWL", "Push WhiteList from JSON file")
+  .addOptionalParam("filename", "WhiteList json file name", "./whitelist_import.json")
+  .setAction(async (taskArgs, hre) => {
+    const whitelist = await import(taskArgs.filename);
+    const contract = await getContract(getEnvVariable("CONTRACT_NAME"), hre, getProvider(hre));
+    const transactionResponse = await contract["pushMultiWL"](whitelist.default);
+    console.log(`Transaction Hash: ${transactionResponse.hash}`);
+  });
+
 task("ownerMint", "Mints from the NFT contract. (only Owner)")
   .addParam("number", "Ownermint Number")
   .setAction(async function (taskArguments, hre) {

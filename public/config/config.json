@@ -1,13 +1,13 @@
 {
   "CONTRACT_ADDRESS": "0xa559497F0F87160273762576a888cc080A73847D",
-  "SCAN_LINK": "https://astar.subscan.io/account/0xa559497F0F87160273762576a888cc080A73847D",
+  "SCAN_LINK": "https://shibuya.subscan.io/account/0xa559497F0F87160273762576a888cc080A73847D",
   "NETWORK": {
     "NAME": "shibuya",
     "SYMBOL": "SBY",
     "ID": 81,
     "DECIMALS": 18,
-    "RPC_URL": "https://rpc.astar.network:8545",
-    "BLOCK_EXPLORER_URL": "https://astar.subscan.io"
+    "RPC_URL": "https://rpc.shibuya.astar.network:8545",
+    "BLOCK_EXPLORER_URL": "https://shibuya.subscan.io"
   },
   "NETWORK_localhost": {
     "NAME": "localhost",
