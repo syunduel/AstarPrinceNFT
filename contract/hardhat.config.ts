@@ -15,6 +15,11 @@ const config: HardhatUserConfig = {
       chainId: 31337,
       accounts: { mnemonic: "test test test test test test test test test test test junk" }
     },
+    astar: {
+      url: "https://rpc.astar.network:8545",
+      chainId: 592,
+      accounts: [getEnvVariable("ACCOUNT_PRIVATE_KEY")],
+    },
     shibuya: {
       url: "https://rpc.shibuya.astar.network:8545",
       chainId: 81,

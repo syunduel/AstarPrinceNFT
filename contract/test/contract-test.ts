@@ -4,15 +4,8 @@ import type { BigNumber } from "ethers";
 import type { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 const { expect, assert } = require("chai");
 const provider = waffle.provider;
+import { test_config, assertPublicMintSuccess, assertPreMintSuccess } from "./test-helpers";
 
-const test_config = {
-  price: 3,
-  price_pre: 2,
-  contract_name: "AstarCats",
-  max_supply: 7777,
-  max_mint: 10,
-  symbol: "CAT"
-};
 
 describe("AstarCats contract", function () {
   let owner: SignerWithAddress;
@@ -65,38 +58,6 @@ describe("AstarCats contract", function () {
     });
 
 
-  });
-
-  describe("OwnerFunction checks", function () {
-    it("Owner can ownermint", async () => {
-      await expect(ad.connect(owner).ownerMint(1)).to.be.ok;
-    });
-
-    it("Ownership Transform", async () => {
-      await ad.connect(owner).transferOwnership(bob.address);
-      await expect(ad.connect(bob).ownerMint(1)).to.be.ok;
-    });
-
-    it("WithDraw funds", async () => {
-      await ad.setPresale(false);
-      const cost = await ad.getCurrentCost();
-      const new_owner = ethers.Wallet.createRandom();
-
-      expect(await ad.provider.getBalance(ad.address)).to.equal(0);
-      await assertPublicMintSuccess(ad, cost, bob, 1);
-      expect(await ad.provider.getBalance(ad.address)).to.equal(cost);
-      expect(await ad.provider.getBalance(new_owner.address)).to.equal(0);
-      await ad.connect(owner).transferOwnership(new_owner.address);
-      await ad.connect(owner).withdraw();
-      expect(await ad.provider.getBalance(ad.address)).to.equal(0);
-      expect(await ad.provider.getBalance(new_owner.address)).to.equal(cost);
-
-    });
-
-
-    it("Non-owner cant ownermint", async () => {
-      await expect(ad.connect(bob).ownerMint(1)).to.reverted;
-    });
   });
 
   describe("Public Minting checks", function () {
@@ -349,29 +310,3 @@ describe("AstarCats contract", function () {
   });
 
 });
-
-async function assertPreMintSuccess(ad: any, cost: number | BigNumber, signer: SignerWithAddress, num: number, alreadySupply = 0) {
-  let tokenId = await ad.totalSupply();
-
-  expect(
-    await ad.connect(signer).preMint(num, {
-      value: cost,
-    })
-  )
-    .to.emit(ad, "Transfer")
-    .withArgs(ethers.constants.AddressZero, signer.address, tokenId.add(num.toString()));
-  expect(await ad.totalSupply()).to.equal(num + alreadySupply);
-}
-
-async function assertPublicMintSuccess(ad: any, cost: number | BigNumber, signer: SignerWithAddress, num: number, alreadySupply = 0) {
-  let tokenId = await ad.totalSupply();
-
-  expect(
-    await ad.connect(signer).publicMint(num, {
-      value: cost,
-    })
-  )
-    .to.emit(ad, "Transfer")
-    .withArgs(ethers.constants.AddressZero, signer.address, tokenId.add(num.toString()));
-  expect(await ad.totalSupply()).to.equal(num + alreadySupply);
-}

@@ -1,4 +1,4 @@
-import { task } from "hardhat/config";
+import { task, types } from "hardhat/config";
 import { ethers } from "ethers";
 import { getContract, getEnvVariable, getProvider } from "./helpers";
 
@@ -10,6 +10,12 @@ task("accounts", "Prints the list of accounts", async (taskArgs, hre) => {
     console.log(account.address);
   }
 });
+
+task("checksum", "Change address to checksum address")
+  .addParam("address", "wallet address")
+  .setAction(async (taskArgs, hre) => {
+    console.log(ethers.utils.getAddress(taskArgs.address));
+  });
 
 task("ownerMint", "Mints from the NFT contract. (only Owner)")
   .addParam("number", "Ownermint Number")
