@@ -255,7 +255,7 @@ const Mint = () => {
             <s.TextDescription
               style={{ textAlign: "center", color: "var(--accent-text)" }}
             >
-              {CONFIG.PRESALE ? "PreSale" : "PublicSale"} now!
+              {/* {CONFIG.PRESALE ? "PreSale" : "PublicSale"} now!  */}
             </s.TextDescription>
             <s.SpacerSmall />
             {blockchain.account === "" ||
