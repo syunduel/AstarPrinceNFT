@@ -96,7 +96,6 @@ const Mint = () => {
     MARKETPLACE_LINK: "",
     SHOW_BACKGROUND: false,
   });
-  const MAX_MINT_AMOUNT = 10;
   const CAN_MINT = true;
 
   const { containerProps, indicatorEl } = useLoading({
@@ -147,6 +146,7 @@ const Mint = () => {
   };
 
   const incrementMintAmount = () => {
+    const MAX_MINT_AMOUNT = CONFIG.PRESALE ? CONFIG.MAX_MINT_AMOUNT_PRE : CONFIG.MAX_MINT_AMOUNT_PUBLIC;
     let newMintAmount = mintAmount + 1;
     if (newMintAmount > MAX_MINT_AMOUNT) {
       newMintAmount = MAX_MINT_AMOUNT;
