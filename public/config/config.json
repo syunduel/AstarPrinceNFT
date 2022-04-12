@@ -35,6 +35,6 @@
   "GAS_LIMIT": 300000,
   "MARKETPLACE": "TofuNFT",
   "MARKETPLACE_LINK": "https://tofunft.com/collection/astardegens/items",
-  "PRESALE": true,
+  "PRESALE": false,
   "SHOW_BACKGROUND": true
 }
