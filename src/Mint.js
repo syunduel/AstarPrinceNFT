@@ -178,13 +178,12 @@ const Mint = () => {
   }, [blockchain.account]);
 
   const MintButton = (props) => {
-    console.log(data);
-    if (data.paused == true) {
+    if (CONFIG.PAUSED == true) {
       return (
         <s.TextTitle
           style={{ textAlign: "center", color: "var(--accent-text)" }}
         >
-          Sale is not open.
+          SALE PAUSED.
         </s.TextTitle>
       );
     } else {
@@ -202,14 +201,6 @@ const Mint = () => {
           >
             Excluding gas fees.
           </s.TextDescription>
-          <s.TextDescription
-            style={{ textAlign: "center", color: "var(--accent-text)" }}
-          >
-            {data.paused && (
-              data.presale ? "PreSale now!" : "PublicSale now!"
-            )}
-          </s.TextDescription>
-          <s.SpacerSmall />
           {blockchain.account === "" ||
             blockchain.smartContract === null ? (
             <s.Container ai={"center"} jc={"center"}>
@@ -247,6 +238,13 @@ const Mint = () => {
             </s.Container>
           ) : (
             <>
+              <s.TextDescription
+                style={{ textAlign: "center", color: "var(--accent-text)" }}
+              >
+                {CONFIG.PRESALE ? "PRESALE LIVE!" : "PUBLIC SALE LIVE!"}
+              </s.TextDescription>
+              <s.SpacerSmall />
+
               <s.TextDescription
                 style={{
                   textAlign: "center",
