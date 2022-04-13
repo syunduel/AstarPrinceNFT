@@ -12,15 +12,11 @@ const truncate = (input, len) =>
 
 export const StyledButton = styled.button`
   padding: 16px 40px;
-  border-radius: 10px;
   border: none;
   background-color: ${props => props.disabled ? '#505050' : '#48e1af'};
   font-weight: bold;
   color: var(--secondary-text);
   cursor: ${props => props.disabled ? 'not-allowed' : 'pointer'};
-  box-shadow: 0px 6px 0px -2px rgba(250, 250, 250, 0.3);
-  -webkit-box-shadow: 0px 6px 0px -2px rgba(250, 250, 250, 0.3);
-  -moz-box-shadow: 0px 6px 0px -2px rgba(250, 250, 250, 0.3);
   :active {
     box-shadow: none;
     -webkit-box-shadow: none;
