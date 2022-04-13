@@ -14,7 +14,7 @@ export const StyledButton = styled.button`
   padding: 16px 40px;
   border-radius: 10px;
   border: none;
-  background-color: ${props => props.disabled ? '#505050' : '#e253e5'};
+  background-color: ${props => props.disabled ? '#505050' : '#48e1af'};
   font-weight: bold;
   color: var(--secondary-text);
   cursor: ${props => props.disabled ? 'not-allowed' : 'pointer'};
@@ -190,7 +190,6 @@ const Mint = () => {
           padding: 24,
           borderRadius: 24,
           border: "0px dashed var(--secondary)",
-          boxShadow: "0px 5px 11px 2px rgba(0,0,0,0.7)",
         }}
       >
         <s.TextTitle
@@ -202,12 +201,6 @@ const Mint = () => {
           Catlist sale will take place on April 15th, 2022 7:00 AM EST<br />
           Public sale will take place on April 15, 2022 11:00 PM EST
         </s.TextTitle>
-        <s.TextDescription style={{ textAlign: "center", color: "var(--accent-text)" }}>
-          NFT Marketplace
-        </s.TextDescription>
-        <StyledLink target={"_blank"} href={CONFIG.MARKETPLACE_LINK}>
-          {CONFIG.MARKETPLACE}
-        </StyledLink>
         <s.SpacerSmall />
         <s.TextTitle
           style={{
@@ -356,6 +349,13 @@ const Mint = () => {
           </>
         )}
         <s.SpacerMedium />
+        <s.TextDescription style={{ textAlign: "center", color: "var(--accent-text)" }}>
+          NFT Marketplace
+        </s.TextDescription>
+        <StyledLink target={"_blank"} href={CONFIG.MARKETPLACE_LINK}>
+          {CONFIG.MARKETPLACE}
+        </StyledLink>
+
       </s.Container>
       <s.SpacerLarge />
       <s.Container>
