@@ -94,9 +94,7 @@ const Mint = () => {
     GAS_LIMIT: 0,
     MARKETPLACE: "",
     MARKETPLACE_LINK: "",
-    SHOW_BACKGROUND: false,
   });
-  const CAN_MINT = true;
 
   const { containerProps, indicatorEl } = useLoading({
     loading: claimingNft,
@@ -179,6 +177,137 @@ const Mint = () => {
     getData();
   }, [blockchain.account]);
 
+  const MintButton = (props) => {
+    console.log(data);
+    if (data.paused == true) {
+      return (
+        <s.TextTitle
+          style={{ textAlign: "center", color: "var(--accent-text)" }}
+        >
+          Sale is not open.
+        </s.TextTitle>
+      );
+    } else {
+      return (
+        <React.Fragment>
+          <s.TextTitle
+            style={{ textAlign: "center", color: "var(--accent-text)" }}
+          >
+            1 {CONFIG.SYMBOL} costs {CONFIG.PRESALE ? CONFIG.DISPLAY_COST_PRE : CONFIG.DISPLAY_COST_PUBLIC}{" "}
+            {CONFIG.NETWORK.SYMBOL}.
+          </s.TextTitle>
+          <s.SpacerXSmall />
+          <s.TextDescription
+            style={{ textAlign: "center", color: "var(--accent-text)" }}
+          >
+            Excluding gas fees.
+          </s.TextDescription>
+          <s.TextDescription
+            style={{ textAlign: "center", color: "var(--accent-text)" }}
+          >
+            {data.paused && (
+              data.presale ? "PreSale now!" : "PublicSale now!"
+            )}
+          </s.TextDescription>
+          <s.SpacerSmall />
+          {blockchain.account === "" ||
+            blockchain.smartContract === null ? (
+            <s.Container ai={"center"} jc={"center"}>
+              <s.TextDescription
+                style={{
+                  textAlign: "center",
+                  color: "var(--accent-text)",
+                }}
+              >
+                Connect to the {CONFIG.NETWORK.NAME} network
+              </s.TextDescription>
+              <s.SpacerSmall />
+              <StyledButton
+                onClick={(e) => {
+                  e.preventDefault();
+                  dispatch(connect());
+                  getData();
+                }}
+              >
+                CONNECT
+              </StyledButton>
+              {blockchain.errorMsg !== "" ? (
+                <>
+                  <s.SpacerSmall />
+                  <s.TextDescription
+                    style={{
+                      textAlign: "center",
+                      color: "var(--accent-text)",
+                    }}
+                  >
+                    {blockchain.errorMsg}
+                  </s.TextDescription>
+                </>
+              ) : null}
+            </s.Container>
+          ) : (
+            <>
+              <s.TextDescription
+                style={{
+                  textAlign: "center",
+                  color: "var(--accent-text)",
+                }}
+              >
+                {feedback}
+              </s.TextDescription>
+              <s.SpacerMedium />
+              <s.Container ai={"center"} jc={"center"} fd={"row"}>
+                <StyledRoundButton
+                  style={{ lineHeight: 0.4 }}
+                  disabled={claimingNft ? 1 : 0}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    decrementMintAmount();
+                  }}
+                >
+                  -
+                </StyledRoundButton>
+                <s.SpacerMedium />
+                <s.TextDescription
+                  style={{
+                    textAlign: "center",
+                    color: "var(--accent-text)",
+                  }}
+                >
+                  {mintAmount}
+                </s.TextDescription>
+                <s.SpacerMedium />
+                <StyledRoundButton
+                  disabled={claimingNft ? 1 : 0}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    incrementMintAmount();
+                  }}
+                >
+                  +
+                </StyledRoundButton>
+              </s.Container>
+              <s.SpacerSmall />
+              <s.Container ai={"center"} jc={"center"} fd={"row"}>
+                <StyledButton
+                  disabled={claimingNft ? 1 : 0}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    claimNFTs();
+                    getData();
+                  }}
+                >
+                  <BuyButtonContent>
+                    {claimingNft ? indicatorEl : "BUY"}
+                  </BuyButtonContent>
+                </StyledButton>
+              </s.Container>
+            </>
+          )}
+        </React.Fragment>);
+    }
+  }
+
   return (
     <ResponsiveWrapper style={{ padding: 24 }} test>
       <s.Container
@@ -198,8 +327,8 @@ const Mint = () => {
             color: "var(--secondary)",
           }}
         >
-          Catlist sale will take place on April 15th, 2022 7:00 AM EST<br />
-          Public sale will take place on April 15, 2022 11:00 PM EST
+          Catlist sale: April 15th, 2022 at 7:00 AM EST | 08:00 PM JST <br />
+          Public sale: April 15th, 2022 at 11:00 PM EST | 12:00 PM(noon) JST
         </s.TextTitle>
         <s.SpacerSmall />
         <s.TextTitle
@@ -224,129 +353,13 @@ const Mint = () => {
         </s.TextDescription>
         <s.SpacerSmall />
         {Number(data.totalSupply) >= CONFIG.MAX_SUPPLY ? (
-          <>
-            <s.TextTitle
-              style={{ textAlign: "center", color: "var(--accent-text)" }}
-            >
-              The sale has ended.
-            </s.TextTitle>
-          </>
+          <s.TextTitle
+            style={{ textAlign: "center", color: "var(--accent-text)" }}
+          >
+            The sale has ended.
+          </s.TextTitle>
         ) : (
-          <>
-            <s.TextTitle
-              style={{ textAlign: "center", color: "var(--accent-text)" }}
-            >
-              1 {CONFIG.SYMBOL} costs {CONFIG.PRESALE ? CONFIG.DISPLAY_COST_PRE : CONFIG.DISPLAY_COST_PUBLIC}{" "}
-              {CONFIG.NETWORK.SYMBOL}.
-            </s.TextTitle>
-            <s.SpacerXSmall />
-            <s.TextDescription
-              style={{ textAlign: "center", color: "var(--accent-text)" }}
-            >
-              Excluding gas fees.
-            </s.TextDescription>
-            <s.TextDescription
-              style={{ textAlign: "center", color: "var(--accent-text)" }}
-            >
-              {/* {CONFIG.PRESALE ? "PreSale" : "PublicSale"} now!  */}
-            </s.TextDescription>
-            <s.SpacerSmall />
-            {blockchain.account === "" ||
-              blockchain.smartContract === null ? (
-              <s.Container ai={"center"} jc={"center"}>
-                <s.TextDescription
-                  style={{
-                    textAlign: "center",
-                    color: "var(--accent-text)",
-                  }}
-                >
-                  Connect to the {CONFIG.NETWORK.NAME} network
-                </s.TextDescription>
-                <s.SpacerSmall />
-                <StyledButton
-                  disabled={!CAN_MINT}
-                  onClick={(e) => {
-                    e.preventDefault();
-                    dispatch(connect());
-                    getData();
-                  }}
-                >
-                  CONNECT
-                </StyledButton>
-                {blockchain.errorMsg !== "" ? (
-                  <>
-                    <s.SpacerSmall />
-                    <s.TextDescription
-                      style={{
-                        textAlign: "center",
-                        color: "var(--accent-text)",
-                      }}
-                    >
-                      {blockchain.errorMsg}
-                    </s.TextDescription>
-                  </>
-                ) : null}
-              </s.Container>
-            ) : (
-              <>
-                <s.TextDescription
-                  style={{
-                    textAlign: "center",
-                    color: "var(--accent-text)",
-                  }}
-                >
-                  {feedback}
-                </s.TextDescription>
-                <s.SpacerMedium />
-                <s.Container ai={"center"} jc={"center"} fd={"row"}>
-                  <StyledRoundButton
-                    style={{ lineHeight: 0.4 }}
-                    disabled={claimingNft ? 1 : 0}
-                    onClick={(e) => {
-                      e.preventDefault();
-                      decrementMintAmount();
-                    }}
-                  >
-                    -
-                  </StyledRoundButton>
-                  <s.SpacerMedium />
-                  <s.TextDescription
-                    style={{
-                      textAlign: "center",
-                      color: "var(--accent-text)",
-                    }}
-                  >
-                    {mintAmount}
-                  </s.TextDescription>
-                  <s.SpacerMedium />
-                  <StyledRoundButton
-                    disabled={claimingNft ? 1 : 0}
-                    onClick={(e) => {
-                      e.preventDefault();
-                      incrementMintAmount();
-                    }}
-                  >
-                    +
-                  </StyledRoundButton>
-                </s.Container>
-                <s.SpacerSmall />
-                <s.Container ai={"center"} jc={"center"} fd={"row"}>
-                  <StyledButton
-                    disabled={claimingNft ? 1 : 0}
-                    onClick={(e) => {
-                      e.preventDefault();
-                      claimNFTs();
-                      getData();
-                    }}
-                  >
-                    <BuyButtonContent>
-                      {claimingNft ? indicatorEl : "BUY"}
-                    </BuyButtonContent>
-                  </StyledButton>
-                </s.Container>
-              </>
-            )}
-          </>
+          <MintButton config={CONFIG} />
         )}
         <s.SpacerMedium />
         <s.TextDescription style={{ textAlign: "center", color: "var(--accent-text)" }}>
@@ -386,5 +399,6 @@ const Mint = () => {
     </ResponsiveWrapper>
   );
 };
+
 
 export default Mint;
