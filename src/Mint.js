@@ -367,7 +367,7 @@ const Mint = () => {
       <s.Container>
         <s.TextDescription
           style={{
-            textAlign: "center",
+            textAlign: "right",
             color: "var(--accent)",
           }}
         >
@@ -376,9 +376,10 @@ const Mint = () => {
           Catlist Max: 5 NFTs per address<br />
           Public Max: 10 NFTs per Transaction
         </s.TextDescription>
+        <s.SpacerMedium />
         <s.TextDescription
           style={{
-            textAlign: "center",
+            textAlign: "right",
             color: "var(--accent)",
           }}
         >
