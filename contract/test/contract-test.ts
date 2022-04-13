@@ -265,7 +265,7 @@ describe("AstarCats contract", function () {
       await expect(ad.connect(bob).preMint(1, { value: degenCost })).to.be.revertedWith("CL: Five cats max per address in Catlist");
     });
 
-    it("Whitelisted user can buy 5", async function () {
+    it("Whitelisted user can buy 5 adn can not buy 6", async function () {
       const degenCost = (await ad.getCurrentCost()).mul(5);
       let tokenId = await ad.totalSupply();
       expect(await ad.pushMultiWL([bob.address, bob.address, bob.address, bob.address, bob.address])).to.be.ok;
@@ -279,6 +279,13 @@ describe("AstarCats contract", function () {
       await assertPreMintSuccess(ad, degenCost, bob, 3);
       await assertPreMintSuccess(ad, degenCost, bob, 2, 3);
       await expect(ad.connect(bob).preMint(1, { value: degenCost })).to.be.revertedWith("CL: Five cats max per address in Catlist");
+    });
+
+
+    it("Whitelisted user can not buy over WL", async function () {
+      const degenCost = (await ad.getCurrentCost()).mul(6);
+      expect(await ad.pushMultiWL([bob.address, bob.address, bob.address, bob.address, bob.address])).to.be.ok;
+      await expect(ad.connect(bob).preMint(6, { value: degenCost })).to.be.revertedWith("CL: Five cats max per address in Catlist");
     });
 
     it("Non WhiteList user block after Whitelisted user buy", async function () {
@@ -303,7 +310,14 @@ describe("AstarCats contract", function () {
       expect(await ad.totalSupply()).to.equal(2);
     });
 
-    it("Block Overallocate Check", async () => {
+    it("Block over allocate Check", async () => {
+      let degenCost = (await ad.getCurrentCost()).mul(5);
+      expect(await ad.pushMultiWL([bob.address, bob.address, bob.address, bob.address, bob.address])).to.be.ok;
+      await assertPreMintSuccess(ad, degenCost, bob, 5);
+      expect(await ad.connect(bob)["safeTransferFrom(address,address,uint256)"](bob.address, alis.address, 1)).to.be.ok;
+      expect(await ad["balanceOf"](bob.address)).to.equal(4);
+      expect(await ad["balanceOf"](alis.address)).to.equal(1);
+      await expect(ad.connect(bob).preMint(1, { value: degenCost })).to.be.revertedWith("CL: Five cats max per address in Catlist");
     });
 
 
