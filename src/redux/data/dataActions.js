@@ -33,8 +33,6 @@ export const fetchData = () => {
       dispatch(
         fetchDataSuccess({
           totalSupply,
-          paused,
-          presale,
         })
       );
     } catch (err) {
