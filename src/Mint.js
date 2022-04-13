@@ -371,9 +371,9 @@ const Mint = () => {
             color: "var(--accent)",
           }}
         >
-          Catlist Price: 250 $ASTR
-          Public Price: 300 $ASTR
-          Catlist Max: 5 NFTs per address
+          Catlist Price: 250 $ASTR<br />
+          Public Price: 300 $ASTR<br />
+          Catlist Max: 5 NFTs per address<br />
           Public Max: 10 NFTs per Transaction
         </s.TextDescription>
         <s.TextDescription
@@ -386,18 +386,6 @@ const Mint = () => {
           {CONFIG.NETWORK.NAME}) and the correct address. Please note:
           Once you make the purchase, you cannot undo this action.
         </s.TextDescription>
-        <s.SpacerSmall />
-        <s.TextDescription
-          style={{
-            textAlign: "center",
-            color: "var(--accent)",
-          }}
-        >
-          We have set the gas limit to {CONFIG.GAS_LIMIT} for the contract to
-          successfully mint your NFT. We recommend that you don't lower the
-          gas limit.
-        </s.TextDescription>
-        <s.SpacerLarge />
         <s.SpacerLarge />
       </s.Container>
     </ResponsiveWrapper>
