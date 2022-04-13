@@ -196,11 +196,6 @@ const Mint = () => {
             {CONFIG.NETWORK.SYMBOL}.
           </s.TextTitle>
           <s.SpacerXSmall />
-          <s.TextDescription
-            style={{ textAlign: "center", color: "var(--accent-text)" }}
-          >
-            Excluding gas fees.
-          </s.TextDescription>
           {blockchain.account === "" ||
             blockchain.smartContract === null ? (
             <s.Container ai={"center"} jc={"center"}>
@@ -370,6 +365,17 @@ const Mint = () => {
       </s.Container>
       <s.SpacerLarge />
       <s.Container>
+        <s.TextDescription
+          style={{
+            textAlign: "center",
+            color: "var(--accent)",
+          }}
+        >
+          Catlist Price: 250 $ASTR
+          Public Price: 300 $ASTR
+          Catlist Max: 5 NFTs per address
+          Public Max: 10 NFTs per Transaction
+        </s.TextDescription>
         <s.TextDescription
           style={{
             textAlign: "center",
