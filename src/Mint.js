@@ -367,7 +367,7 @@ const Mint = () => {
       <s.Container>
         <s.TextDescription
           style={{
-            textAlign: "right",
+            textAlign: "left",
             color: "var(--accent)",
           }}
         >
@@ -379,7 +379,7 @@ const Mint = () => {
         <s.SpacerMedium />
         <s.TextDescription
           style={{
-            textAlign: "right",
+            textAlign: "left",
             color: "var(--accent)",
           }}
         >
