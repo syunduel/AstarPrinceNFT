@@ -33,10 +33,10 @@
   "WEI_COST_PRE": 2000000000000000000,
   "DISPLAY_COST_PRE": 2,
   "GAS_LIMIT": 300000,
+  "PAUSED": true,
+  "PRESALE": true,
   "MARKETPLACE": "TofuNFT",
   "MARKETPLACE_LINK": "https://tofunft.com/collection/astarcats/items",
-  "PRESALE": true,
   "MAX_MINT_AMOUNT_PRE": 5,
-  "MAX_MINT_AMOUNT_PUBLIC": 10,
-  "SHOW_BACKGROUND": true
+  "MAX_MINT_AMOUNT_PUBLIC": 10
 }
