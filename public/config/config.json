@@ -34,7 +34,7 @@
   "DISPLAY_COST_PRE": 2,
   "GAS_LIMIT": 300000,
   "PAUSED": false,
-  "PRESALE": false,
+  "PRESALE": true,
   "MARKETPLACE": "TofuNFT",
   "MARKETPLACE_LINK": "https://tofunft.com/collection/astarcats/items",
   "MAX_MINT_AMOUNT_PRE": 5,
