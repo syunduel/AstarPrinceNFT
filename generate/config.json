@@ -2,7 +2,7 @@
   "assset_dir": "assets/",
   "output_dir": "output/",
   "json_dir": "json/",
-  "thumbnail_dir": "json/",
+  "thumbnail_dir": "thumbnail/",
   "csv_file_name": "metadata.csv",
   "pinata_directory_name": "AstarCats",
   "max_image_generate": 1000,
