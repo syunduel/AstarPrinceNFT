@@ -85,7 +85,7 @@ contract AstarCats is ERC721Enumerable, Ownable {
     function ownerMint(uint256 count) public onlyOwner {
         uint256 supply = totalSupply();
 
-        for (uint256 i = 1; i < count; i++) {
+        for (uint256 i = 1; i <= count; i++) {
             _safeMint(msg.sender, supply + i);
         }
     }
