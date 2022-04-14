@@ -1,7 +1,8 @@
 import { task, types } from "hardhat/config";
 import { ethers } from "ethers";
 import { getContract, getEnvVariable, getProvider } from "./helpers";
-
+import fs from "fs";
+import readline from "readline";
 
 task("accounts", "Prints the list of accounts", async (taskArgs, hre) => {
   const accounts = await hre.ethers.getSigners();
@@ -18,11 +19,24 @@ task("checksum", "Change address to checksum address")
   });
 
 task("pushWL", "Push WhiteList from JSON file")
-  .addOptionalParam("filename", "WhiteList json file name", "./whitelist_import.json")
+  .addOptionalParam("filename", "WhiteList txt file name", "./scripts/whitelist_import.txt")
   .setAction(async (taskArgs, hre) => {
-    const whitelist = await import(taskArgs.filename);
+    let whitelist: string[] = [];
+
+    const rl = readline.createInterface({
+      input: fs.createReadStream(taskArgs.filename, { encoding: 'utf8' }),
+      crlfDelay: Infinity
+    });
+
+    for await (const line of rl) {
+      if (!ethers.utils.isAddress(line)) throw Error(line + "is not valid.");
+      whitelist.push(line);
+    }
+
     const contract = await getContract(getEnvVariable("CONTRACT_NAME"), hre, getProvider(hre));
-    const transactionResponse = await contract["pushMultiWL"](whitelist.default);
+    const transactionResponse = await contract["pushMultiWL"](whitelist, {
+      gasLimit: 14900000
+    });
     console.log(`Transaction Hash: ${transactionResponse.hash}`);
   });
 
