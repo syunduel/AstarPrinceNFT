@@ -317,7 +317,7 @@ const Mint = () => {
           }}
         >
           Catlist sale: April 15th, 2022 at 7:00 AM EST | 08:00 PM JST <br />
-          Public sale: April 15th, 2022 at 11:00 PM EST | 12:00 PM(noon) JST
+          Public sale: April 15th, 2022 at 11:00 PM EST | 16th 12:00 PM(noon) JST
         </s.TextTitle>
         <s.SpacerSmall />
         <s.TextTitle
