@@ -1,6 +1,11 @@
 import { parse } from 'csv-parse/sync';
 import fs = require('fs');
 import * as config from "./config.json";
+import { OptionValues, program } from 'commander';
+
+program.option('--pack');
+program.parse();
+const options = program.opts();
 
 
 type CSVRecords = {
@@ -36,7 +41,7 @@ const isRecords = (records: any): records is CSVRecords => {
 }
 
 
-function main() {
+function main(options: OptionValues) {
   const data = fs.readFileSync(config.csv_file_name);
   const records: any = parse(data, {
     columns: true
@@ -49,10 +54,14 @@ function main() {
   if (!fs.existsSync(config.json_dir)) {
     fs.mkdirSync(config.json_dir);
   }
-
-  for (const rec of records) {
-    const metadata = JSON.stringify(convertMetaData(rec));
-    fs.writeFileSync(config.json_dir + rec['id'] + '.json', metadata);
+  if (options['pack']) {
+    const metadata = JSON.stringify(records.map((rec) => convertMetaData(rec)));
+    fs.writeFileSync(config.json_dir + 'packed.json', metadata);
+  } else {
+    for (const rec of records) {
+      const metadata = JSON.stringify(convertMetaData(rec));
+      fs.writeFileSync(config.json_dir + rec['id'] + '.json', metadata);
+    }
   }
 
 }
@@ -77,4 +86,4 @@ function convertMetaData(rec: { [key: string]: string; }): OpenSeaMetaData {
 }
 
 
-main();
+main(options);

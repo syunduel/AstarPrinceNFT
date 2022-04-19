@@ -94,11 +94,15 @@ async function compositeImage(trait: TraitData, zeroPaddingLength: number) {
 
   for (const atr of attributes) {
     if (atr.value !== "None") {
-      rest_trait.push({ input: traitConfig.assset_dir + atr.key + "/" + atr.value + ".png" });
+      const trait_path = traitConfig.assset_dir + atr.key + "/" + atr.value + ".png";
+      if (!fs.existsSync(trait_path)) console.log(trait_path + " is not exsit");
+      rest_trait.push({ input: trait_path });
     }
   }
   try {
-    const image = sharp(traitConfig.assset_dir + first_trait.key + "/" + first_trait.value + ".png");
+    const first_trait_path = traitConfig.assset_dir + first_trait.key + "/" + first_trait.value + ".png";
+    if (!fs.existsSync(first_trait_path)) console.log("First trait path is null. " + first_trait_path);
+    const image = sharp(first_trait_path);
     image.composite(rest_trait);
     const file_name = zeroPadding(trait.id, zeroPaddingLength) + ".png";
 
