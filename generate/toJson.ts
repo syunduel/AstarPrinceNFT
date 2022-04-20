@@ -3,7 +3,7 @@ import fs = require('fs');
 import * as config from "./config.json";
 import { OptionValues, program } from 'commander';
 
-program.option('--pack');
+program.option('-p, --pack');
 program.parse();
 const options = program.opts();
 
