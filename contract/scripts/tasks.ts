@@ -82,13 +82,14 @@ task("totalSupply", "Show Total Supply")
   });
 
 task("snapshot", "BulkSend Account NFT")
-  .addOptionalParam("filename", "White txt file name", "./scripts/snapshot.csv")
+  .addOptionalParam("filename", "White txt file name", "./scripts/snapshot.csv", types.string)
+  .addOptionalParam("start", "Start ID", "1", types.int)
   .setAction(async function (taskArguments, hre) {
     const contract = await getContract(getEnvVariable("CONTRACT_NAME"), hre, getProvider(hre));
     const totalSupply: number = Number(await contract["totalSupply"]());
     console.log(`totalSupply: ${totalSupply}`);
     if (fs.existsSync(taskArguments.filename)) fs.truncateSync(taskArguments.filename);
-    for (let i = 1; i <= totalSupply; i++) {
+    for (let i = taskArguments.start; i <= totalSupply; i++) {
       const ownerOf = await contract["ownerOf"](i);
       console.log(`ID:${i} owner:${ownerOf}`);
       fs.appendFileSync(taskArguments.filename, [i, ownerOf].join(",") + "\n");
