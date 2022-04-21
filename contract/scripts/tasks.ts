@@ -3,6 +3,7 @@ import { ethers } from "ethers";
 import { getContract, getEnvVariable, getProvider } from "./helpers";
 import fs from "fs";
 import readline from "readline";
+import { getContractAt } from "@nomiclabs/hardhat-ethers/internal/helpers";
 
 task("accounts", "Prints the list of accounts", async (taskArgs, hre) => {
   const accounts = await hre.ethers.getSigners();
@@ -78,4 +79,20 @@ task("totalSupply", "Show Total Supply")
     console.log(`call contract.address ${contract.address}.`);
     const transactionResponse = await contract["totalSupply"]();
     console.log(`totalSupply: ${transactionResponse}`);
+  });
+
+task("snapshot", "BulkSend Account NFT")
+  .addOptionalParam("filename", "White txt file name", "./scripts/snapshot.csv")
+  .setAction(async function (taskArguments, hre) {
+    const contract = await getContract(getEnvVariable("CONTRACT_NAME"), hre, getProvider(hre));
+    const totalSupply: number = Number(await contract["totalSupply"]());
+    console.log(`totalSupply: ${totalSupply}`);
+    if (fs.existsSync(taskArguments.filename)) fs.truncateSync(taskArguments.filename);
+    for (let i = 1; i <= totalSupply; i++) {
+      const ownerOf = await contract["ownerOf"](i);
+      console.log(`ID:${i} owner:${ownerOf}`);
+      fs.appendFileSync(taskArguments.filename, [i, ownerOf].join(",") + "\n");
+    }
+
+    console.log("done");
   });
