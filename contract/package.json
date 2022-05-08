@@ -9,7 +9,7 @@
     "lint:eslint": "eslint . --ext ts,tsx",
     "fix:eslint": "eslint . --ext ts,tsx --fix",
     "deploy": "hardhat run scripts/deploy.ts",
-    "flatten": "poa-solidity-flattener ./contracts/AstarCats.sol"
+    "flatten": "poa-solidity-flattener ./contracts/AstarPrince.sol"
   },
   "keywords": [],
   "author": "",

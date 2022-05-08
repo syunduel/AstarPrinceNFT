@@ -8,10 +8,10 @@ const { expect } = require("chai");
 export const test_config = {
   price: 3,
   price_pre: 2,
-  contract_name: "AstarCats",
+  contract_name: "AstarPrince",
   max_supply: 7777,
   max_mint: 10,
-  symbol: "CAT"
+  symbol: "PRINCE"
 };
 
 

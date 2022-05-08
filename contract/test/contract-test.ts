@@ -7,7 +7,7 @@ const provider = waffle.provider;
 import { test_config, assertPublicMintSuccess, assertPreMintSuccess } from "./test-helpers";
 
 
-describe("AstarCats contract", function () {
+describe("AstarPrince contract", function () {
   let owner: SignerWithAddress;
   let bob: SignerWithAddress;
   let alis: SignerWithAddress;
@@ -19,8 +19,8 @@ describe("AstarCats contract", function () {
   beforeEach(async function () {
     // @ts-ignore
     [owner, bob, alis, ...addrs] = await ethers.getSigners();
-    const AstarCats = await ethers.getContractFactory(test_config.contract_name);
-    ad = await AstarCats.deploy(test_config.contract_name, test_config.symbol, not_revealed_uri);
+    const AstarPrince = await ethers.getContractFactory(test_config.contract_name);
+    ad = await AstarPrince.deploy(test_config.contract_name, test_config.symbol, not_revealed_uri);
     await ad.deployed();
 
     // Ensure contract is paused/disabled on deployment
@@ -243,9 +243,9 @@ describe("AstarCats contract", function () {
     it("Non Whitelisted user cant buy on PreSale", async function () {
       const degenCost = await ad.getCurrentCost();
       await expect(ad.connect(bob).preMint(1, { value: degenCost }))
-        .to.be.revertedWith("CL: Five cats max per address in Catlist");
+        .to.be.revertedWith("CL: Five prince max per address in Catlist");
       await expect(ad.connect(owner).preMint(1, { value: degenCost }))
-        .to.be.revertedWith("CL: Five cats max per address in Catlist");
+        .to.be.revertedWith("CL: Five prince max per address in Catlist");
     });
 
     it("Presale can't open on PublicSale", async function () {
@@ -262,7 +262,7 @@ describe("AstarCats contract", function () {
       expect(await ad.pushMultiWL([bob.address])).to.be.ok;
       expect(await ad.getWhiteListCount()).to.equal(1);
       await assertPreMintSuccess(ad, degenCost, bob, 1);
-      await expect(ad.connect(bob).preMint(1, { value: degenCost })).to.be.revertedWith("CL: Five cats max per address in Catlist");
+      await expect(ad.connect(bob).preMint(1, { value: degenCost })).to.be.revertedWith("CL: Five prince max per address in Catlist");
     });
 
     it("Whitelisted user can buy 5 adn can not buy 6", async function () {
@@ -270,7 +270,7 @@ describe("AstarCats contract", function () {
       let tokenId = await ad.totalSupply();
       expect(await ad.pushMultiWL([bob.address, bob.address, bob.address, bob.address, bob.address])).to.be.ok;
       await assertPreMintSuccess(ad, degenCost, bob, 5);
-      await expect(ad.connect(bob).preMint(1, { value: degenCost })).to.be.revertedWith("CL: Five cats max per address in Catlist");
+      await expect(ad.connect(bob).preMint(1, { value: degenCost })).to.be.revertedWith("CL: Five prince max per address in Catlist");
     });
 
     it("Whitelisted user can buy 3 + 2", async function () {
@@ -278,14 +278,14 @@ describe("AstarCats contract", function () {
       expect(await ad.pushMultiWL([bob.address, bob.address, bob.address, bob.address, bob.address])).to.be.ok;
       await assertPreMintSuccess(ad, degenCost, bob, 3);
       await assertPreMintSuccess(ad, degenCost, bob, 2, 3);
-      await expect(ad.connect(bob).preMint(1, { value: degenCost })).to.be.revertedWith("CL: Five cats max per address in Catlist");
+      await expect(ad.connect(bob).preMint(1, { value: degenCost })).to.be.revertedWith("CL: Five prince max per address in Catlist");
     });
 
 
     it("Whitelisted user can not buy over WL", async function () {
       const degenCost = (await ad.getCurrentCost()).mul(6);
       expect(await ad.pushMultiWL([bob.address, bob.address, bob.address, bob.address, bob.address])).to.be.ok;
-      await expect(ad.connect(bob).preMint(6, { value: degenCost })).to.be.revertedWith("CL: Five cats max per address in Catlist");
+      await expect(ad.connect(bob).preMint(6, { value: degenCost })).to.be.revertedWith("CL: Five prince max per address in Catlist");
     });
 
     it("Non WhiteList user block after Whitelisted user buy", async function () {
@@ -293,9 +293,9 @@ describe("AstarCats contract", function () {
       expect(await ad.pushMultiWL([bob.address, bob.address])).to.be.ok;
       expect(await ad.getWhiteListCount()).to.equal(2);
       await assertPreMintSuccess(ad, degenCost, bob, 1);
-      await expect(ad.connect(alis).preMint(1, { value: degenCost })).to.be.revertedWith("CL: Five cats max per address in Catlist");
+      await expect(ad.connect(alis).preMint(1, { value: degenCost })).to.be.revertedWith("CL: Five prince max per address in Catlist");
       await assertPreMintSuccess(ad, degenCost, bob, 1, 1);
-      await expect(ad.connect(bob).preMint(1, { value: degenCost })).to.be.revertedWith("CL: Five cats max per address in Catlist");
+      await expect(ad.connect(bob).preMint(1, { value: degenCost })).to.be.revertedWith("CL: Five prince max per address in Catlist");
     });
 
 

@@ -2,12 +2,12 @@ import hre from "hardhat";
 import { getEnvVariable } from "./helpers";
 
 async function main() {
-  const AstarCats = await hre.ethers.getContractFactory("AstarCats");
-  console.log('Deploying AstarCats ERC721 token...');
-  const token = await AstarCats.deploy(getEnvVariable("CONTRACT_NAME"), getEnvVariable("CONTRACT_SYMBOL"), getEnvVariable("IPFS_JSON"));
+  const AstarPrince = await hre.ethers.getContractFactory("AstarPrince");
+  console.log('Deploying AstarPrince ERC721 token...');
+  const token = await AstarPrince.deploy(getEnvVariable("CONTRACT_NAME"), getEnvVariable("CONTRACT_SYMBOL"), getEnvVariable("IPFS_JSON"));
 
   await token.deployed();
-  console.log("AstarCats deployed to:", token.address);
+  console.log("AstarPrince deployed to:", token.address);
 }
 
 main()

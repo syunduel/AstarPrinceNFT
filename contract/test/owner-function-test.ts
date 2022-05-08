@@ -6,7 +6,7 @@ import { test_config, assertPublicMintSuccess } from "./test-helpers";
 import type { Contract } from "ethers";
 
 
-describe("AstarCats contract", function () {
+describe("AstarPrince contract", function () {
   let owner: SignerWithAddress;
   let bob: SignerWithAddress;
   let alis: SignerWithAddress;
@@ -17,8 +17,8 @@ describe("AstarCats contract", function () {
   beforeEach(async function () {
     // @ts-ignore
     [owner, bob, alis, ...addrs] = await ethers.getSigners();
-    const AstarCats = await ethers.getContractFactory(test_config.contract_name);
-    ad = await AstarCats.deploy(test_config.contract_name, test_config.symbol, not_revealed_uri);
+    const AstarPrince = await ethers.getContractFactory(test_config.contract_name);
+    ad = await AstarPrince.deploy(test_config.contract_name, test_config.symbol, not_revealed_uri);
     await ad.deployed();
 
     // Ensure contract is paused/disabled on deployment

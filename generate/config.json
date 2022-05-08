@@ -4,7 +4,7 @@
   "json_dir": "json/",
   "thumbnail_dir": "thumbnail/",
   "csv_file_name": "metadata.csv",
-  "pinata_directory_name": "AstarCats",
+  "pinata_directory_name": "AstarPrince",
   "max_image_generate": 1000,
   "thumbnail": {
     "width": 300,

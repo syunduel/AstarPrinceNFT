@@ -25,8 +25,8 @@
     "RPC_URL": "https://rpc.astar.network:8545",
     "BLOCK_EXPLORER_URL": "https://astar.subscan.io"
   },
-  "NFT_NAME": "Astar Cats",
-  "SYMBOL": "CAT",
+  "NFT_NAME": "Astar Prince",
+  "SYMBOL": "PRINCE",
   "MAX_SUPPLY": 7777,
   "WEI_COST_PUBLIC": 300000000000000000000,
   "DISPLAY_COST_PUBLIC": 300,
@@ -36,7 +36,7 @@
   "PAUSED": false,
   "PRESALE": false,
   "MARKETPLACE": "TofuNFT",
-  "MARKETPLACE_LINK": "https://tofunft.com/collection/astarcats/items",
+  "MARKETPLACE_LINK": "https://tofunft.com/collection/astarprince/items",
   "MAX_MINT_AMOUNT_PRE": 5,
   "MAX_MINT_AMOUNT_PUBLIC": 10
 }
